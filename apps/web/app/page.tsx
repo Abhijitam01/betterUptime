@@ -20,7 +20,7 @@ function RevealSection({ children, className = "", delay = 0 }: {
         el.style.transition = `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`;
         const observer = new IntersectionObserver(
             ([entry]) => {
-                if (entry.isIntersecting) {
+                if (entry?.isIntersecting) {
                     el.style.opacity = "1";
                     el.style.transform = "translateY(0)";
                     observer.disconnect();
