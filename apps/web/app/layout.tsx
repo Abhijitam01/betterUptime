@@ -1,9 +1,15 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
     title: "BetterUptime — Website monitoring that works",
     description: "Know when your website goes down before your users do. Free, open-source uptime monitoring with response time tracking and full history.",
+};
+
+export const viewport: Viewport = {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
