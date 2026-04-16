@@ -45,7 +45,7 @@ async function sendEmailAlert(to: string, websiteUrl: string, displayName: strin
         : `Your website ${displayName} (${websiteUrl}) has recovered and is now responding normally.`;
 
     await resend.emails.send({
-        from: "alerts@betteruptime.app",
+        from: process.env.RESEND_FROM ?? "BetterUptime <onboarding@resend.dev>",
         to,
         subject,
         text,
