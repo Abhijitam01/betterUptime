@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
     const header = req.headers.authorization;
     if (!header) {
-        res.status(403).send("");
+        res.status(401).json({ message: "Unauthorized" });
         return;
     }
     try {
@@ -12,6 +12,6 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
         req.userId = data.sub as string;
         next();
     } catch {
-        res.status(403).send("");
+        res.status(401).json({ message: "Unauthorized" });
     }
 }
