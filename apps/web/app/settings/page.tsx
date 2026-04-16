@@ -12,6 +12,7 @@ export default function Settings() {
     const [email, setEmail] = useState("");
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [editing, setEditing] = useState(true);
     const [error, setError] = useState("");
 
     useEffect(() => {
@@ -31,12 +32,17 @@ export default function Settings() {
             const updated = await api.updateEmail(email);
             setProfile(updated);
             setSaved(true);
-            setTimeout(() => setSaved(false), 2500);
+            setEditing(false);
         } catch (err) {
             setError(err instanceof Error ? err.message : "Failed to save");
         } finally {
             setSaving(false);
         }
+    }
+
+    function handleEdit() {
+        setSaved(false);
+        setEditing(true);
     }
 
     return (
@@ -65,20 +71,41 @@ export default function Settings() {
                                 value={email}
                                 onChange={e => setEmail(e.target.value)}
                                 placeholder="you@example.com"
-                                className="dark-input"
+                                disabled={!editing}
+                                className="dark-input disabled:opacity-50 disabled:cursor-not-allowed"
                             />
                             <p className="text-xs text-slate-500 mt-1">Used for downtime alerts when email alerts are enabled on a monitor.</p>
                         </div>
 
                         {error && <p className="text-xs text-red-400">{error}</p>}
 
-                        <button
-                            type="submit"
-                            disabled={saving || !email}
-                            className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:text-emerald-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all shadow-lg shadow-emerald-500/20"
-                        >
-                            {saving ? "Saving…" : saved ? "Saved!" : "Save changes"}
-                        </button>
+                        <div className="flex items-center gap-3">
+                            {editing ? (
+                                <button
+                                    type="submit"
+                                    disabled={saving || !email}
+                                    className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:text-emerald-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all shadow-lg shadow-emerald-500/20"
+                                >
+                                    {saving ? "Saving…" : "Save changes"}
+                                </button>
+                            ) : (
+                                <>
+                                    <div className="flex items-center gap-1.5 text-emerald-400 text-sm font-semibold">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="20 6 9 17 4 12" />
+                                        </svg>
+                                        Saved
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={handleEdit}
+                                        className="text-sm font-medium text-slate-400 hover:text-white px-4 py-2 rounded-xl hover:bg-white/[0.06] transition-all border border-white/[0.08]"
+                                    >
+                                        Edit
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </form>
                 </div>
             </main>

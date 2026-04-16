@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
     title: "BetterUptime — Website monitoring that works",
     description: "Know when your website goes down before your users do. Free, open-source uptime monitoring with response time tracking and full history.",
+    icons: {
+        icon: "/favicon.svg",
+        shortcut: "/favicon.svg",
+        apple: "/favicon.svg",
+    },
 };
 
 export const viewport: Viewport = {

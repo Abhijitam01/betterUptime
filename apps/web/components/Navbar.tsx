@@ -1,15 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { clearToken } from "../lib/auth";
 
 export function Navbar() {
     const router = useRouter();
+    const pathname = usePathname();
 
     function signout() {
         clearToken();
         router.push("/signin");
+    }
+
+    function navClass(href: string) {
+        const active = pathname === href || pathname.startsWith(href + "/");
+        return `text-xs font-medium transition-colors px-3 py-1.5 rounded-lg ${
+            active
+                ? "bg-emerald-500/15 text-emerald-400"
+                : "text-slate-400 hover:text-white hover:bg-white/[0.06]"
+        }`;
     }
 
     return (
@@ -23,16 +33,13 @@ export function Navbar() {
                 </Link>
 
                 <nav className="flex items-center gap-1">
-                    <Link
-                        href="/import"
-                        className="text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
-                    >
+                    <Link href="/dashboard" className={navClass("/dashboard")}>
+                        Dashboard
+                    </Link>
+                    <Link href="/import" className={navClass("/import")}>
                         Import
                     </Link>
-                    <Link
-                        href="/settings"
-                        className="text-xs text-slate-400 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
-                    >
+                    <Link href="/settings" className={navClass("/settings")}>
                         Settings
                     </Link>
                     <button
