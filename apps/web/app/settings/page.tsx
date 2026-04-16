@@ -46,7 +46,7 @@ export default function Settings() {
     }
 
     return (
-        <div className="min-h-screen bg-[#080c18]">
+        <div className="min-h-screen bg-[var(--theme-bg)]">
             <Navbar />
             <main className="mx-auto max-w-xl px-4 py-10 space-y-6">
                 <div>

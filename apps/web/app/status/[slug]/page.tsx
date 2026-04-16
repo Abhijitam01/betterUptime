@@ -68,52 +68,53 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
     const openIncidents = data.incidents.filter(i => !i.resolved_at);
 
     return (
-        <div className="min-h-screen bg-slate-50">
+        <div className="min-h-screen bg-[#080c18]">
             {/* Header */}
-            <header className="border-b border-slate-200/80 bg-white">
+            <header className="border-b border-white/[0.06] bg-[#080c18]/90 backdrop-blur-md">
                 <div className="mx-auto max-w-2xl px-4 h-14 flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
-                    <span className="font-semibold text-slate-900 tracking-tight text-sm">BetterUptime</span>
+                    <span className="font-semibold text-white tracking-tight text-sm">BetterUptime</span>
                 </div>
             </header>
 
             <main className="mx-auto max-w-2xl px-4 py-10 space-y-6">
                 {/* Status banner */}
-                <div className={`rounded-2xl px-6 py-5 ${isUp ? "bg-emerald-50 border border-emerald-200" : "bg-red-50 border border-red-200"}`}>
+                <div className={`rounded-2xl px-6 py-5 ${isUp ? "bg-emerald-500/10 border border-emerald-500/25" : "bg-red-500/10 border border-red-500/25"}`}>
                     <div className="flex items-center gap-3 mb-1">
-                        <span className={`relative flex h-3 w-3`}>
+                        <span className="relative flex h-3 w-3">
                             {isUp && <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />}
                             <span className={`relative inline-flex h-3 w-3 rounded-full ${isUp ? "bg-emerald-500" : "bg-red-500"}`} />
                         </span>
-                        <h1 className={`text-lg font-bold ${isUp ? "text-emerald-900" : "text-red-900"}`}>
+                        <h1 className={`text-lg font-bold ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                             {data.display_name}
                         </h1>
                     </div>
-                    <p className={`text-sm font-medium ${isUp ? "text-emerald-700" : "text-red-700"}`}>
+                    <p className={`text-sm font-medium ${isUp ? "text-emerald-400" : "text-red-400"}`}>
                         {isUp ? "Operational" : "Experiencing issues"}
                     </p>
-                    <p className="text-xs text-slate-400 mt-1">{data.url}</p>
+                    <p className="text-xs text-slate-500 mt-1">{data.url}</p>
                 </div>
 
                 {/* Uptime + bar */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                <div className="glass rounded-2xl p-5 space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Last 30 checks</span>
-                        <span className="text-sm font-bold text-slate-900">{uptime}% uptime</span>
+                        <span className="text-sm font-bold text-white">{uptime}% uptime</span>
                     </div>
                     <UptimeBar ticks={data.ticks} />
                 </div>
 
                 {/* Active incidents */}
                 {openIncidents.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-2xl p-5 shadow-sm space-y-2">
-                        <h2 className="text-xs font-semibold text-red-700 uppercase tracking-wide">Active incident</h2>
+                    <div className="bg-red-500/10 border border-red-500/25 rounded-2xl p-5 space-y-2">
+                        <h2 className="text-xs font-semibold text-red-400 uppercase tracking-wide">Active incident</h2>
                         {openIncidents.map(i => (
-                            <div key={i.id} className="text-sm text-red-800">
+                            <div key={i.id} className="text-sm text-slate-200">
                                 <span className="font-medium">{i.cause ?? "Down"}</span>
-                                <span className="text-red-500 ml-2 text-xs">ongoing — {formatDuration(i.started_at, null)}</span>
+                                <span className="text-red-400 ml-2 text-xs">ongoing — {formatDuration(i.started_at, null)}</span>
                             </div>
                         ))}
                     </div>
@@ -121,25 +122,25 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
 
                 {/* Past incidents */}
                 {data.incidents.filter(i => i.resolved_at).length > 0 && (
-                    <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                    <div className="glass rounded-2xl p-5 space-y-3">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Recent incidents</h2>
                         <div className="space-y-2">
                             {data.incidents.filter(i => i.resolved_at).slice(0, 5).map(i => (
                                 <div key={i.id} className="flex items-start justify-between gap-4">
                                     <div>
-                                        <p className="text-sm text-slate-800 font-medium">{i.cause ?? "Down"}</p>
-                                        <p className="text-xs text-slate-400">
+                                        <p className="text-sm text-white font-medium">{i.cause ?? "Down"}</p>
+                                        <p className="text-xs text-slate-500">
                                             {new Date(i.started_at).toLocaleDateString()} — resolved after {formatDuration(i.started_at, i.resolved_at)}
                                         </p>
                                     </div>
-                                    <span className="text-xs bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5 font-medium whitespace-nowrap">Resolved</span>
+                                    <span className="text-xs bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 rounded-full px-2 py-0.5 font-medium whitespace-nowrap">Resolved</span>
                                 </div>
                             ))}
                         </div>
                     </div>
                 )}
 
-                <p className="text-center text-xs text-slate-300">
+                <p className="text-center text-xs text-slate-600">
                     Powered by <span className="font-medium">BetterUptime</span> — refreshes every 30s
                 </p>
             </main>

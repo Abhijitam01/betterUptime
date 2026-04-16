@@ -4,6 +4,15 @@ import { useState, type FormEvent, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { api, type Website } from "../../lib/api";
+
+function timeAgo(iso: string): string {
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const h = Math.floor(mins / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+}
 import { getToken } from "../../lib/auth";
 import { Navbar } from "../../components/Navbar";
 import { WebsiteCard } from "../../components/WebsiteCard";
@@ -14,6 +23,7 @@ export default function Dashboard() {
     const [addError, setAddError] = useState("");
     const [adding, setAdding] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
 
     useEffect(() => {
         if (!getToken()) router.push("/signin");
@@ -21,7 +31,11 @@ export default function Dashboard() {
 
     const { data: websites, error, mutate, isLoading } = useSWR<Website[]>(
         "websites",
-        () => api.listWebsites(),
+        async () => {
+            const data = await api.listWebsites();
+            setLastRefreshed(new Date());
+            return data;
+        },
         { refreshInterval: 600_000 }
     );
 
@@ -41,6 +55,9 @@ export default function Dashboard() {
     }
 
     async function handleDelete(id: string) {
+        const site = websites?.find(w => w.id === id);
+        const name = site?.display_name || site?.url || "this monitor";
+        if (!window.confirm(`Remove monitor for ${name}? This cannot be undone.`)) return;
         setDeletingId(id);
         try {
             await api.deleteWebsite(id);
@@ -63,43 +80,52 @@ export default function Dashboard() {
         ? ((upCount / total) * 100).toFixed(0)
         : null;
 
+    const statusOrder: Record<string, number> = { Down: 0, Unknown: 1, Up: 2 };
+    const sortedWebsites = [...(websites ?? [])].sort((a, b) =>
+        (statusOrder[a.latestTick?.status ?? "Unknown"] ?? 1) - (statusOrder[b.latestTick?.status ?? "Unknown"] ?? 1)
+    );
+
     return (
-        <div className="min-h-screen bg-[#080c18]">
+        <div className="min-h-screen bg-[var(--theme-bg)]">
             <Navbar />
 
             <main className="mx-auto max-w-4xl px-4 py-8 space-y-6">
 
                 {/* Summary stats */}
                 {total > 0 && (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
-                            <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Monitors</span>
-                            <span className="text-2xl font-bold text-white tabular-nums">{total}</span>
-                        </div>
-                        <div className="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
-                            <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Status</span>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-2xl font-bold text-emerald-400 tabular-nums">{upCount}</span>
-                                <span className="text-sm text-slate-500">up</span>
-                                {downCount > 0 && (
-                                    <>
-                                        <span className="text-2xl font-bold text-red-400 tabular-nums">{downCount}</span>
-                                        <span className="text-sm text-slate-500">down</span>
-                                    </>
-                                )}
+                    <div className="glass rounded-2xl overflow-hidden">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-white/[0.06]">
+                            <div className="px-5 py-4">
+                                <p className="text-xs text-slate-500 font-medium mb-1">Monitors</p>
+                                <p className="text-2xl font-bold text-white tabular-nums tracking-tight">{total}</p>
                             </div>
-                        </div>
-                        <div className="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
-                            <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Avg Response</span>
-                            <span className="text-2xl font-bold text-white tabular-nums font-mono">
-                                {avgResponseMs !== null ? `${avgResponseMs}ms` : "—"}
-                            </span>
-                        </div>
-                        <div className="glass rounded-2xl px-4 py-4 flex flex-col gap-1">
-                            <span className="text-xs text-slate-500 uppercase tracking-wide font-semibold">Uptime</span>
-                            <span className={`text-2xl font-bold tabular-nums font-mono ${overallUptimePct === "100" ? "text-emerald-400" : downCount > 0 ? "text-red-400" : "text-white"}`}>
-                                {overallUptimePct !== null ? `${overallUptimePct}%` : "—"}
-                            </span>
+                            <div className="px-5 py-4">
+                                <p className="text-xs text-slate-500 font-medium mb-1">Status</p>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-2xl font-bold text-emerald-400 tabular-nums tracking-tight">{upCount}</span>
+                                    <span className="text-xs text-slate-500">up</span>
+                                    {downCount > 0 && (
+                                        <>
+                                            <span className="text-2xl font-bold text-red-400 tabular-nums tracking-tight">{downCount}</span>
+                                            <span className="text-xs text-slate-500">down</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="px-5 py-4">
+                                <p className="text-xs text-slate-500 font-medium mb-1">Avg response</p>
+                                <p className="text-2xl font-bold text-white tabular-nums tracking-tight font-mono">
+                                    {avgResponseMs !== null ? `${avgResponseMs}ms` : "—"}
+                                </p>
+                            </div>
+                            <div className="px-5 py-4">
+                                <p className="text-xs text-slate-500 font-medium mb-1">Uptime</p>
+                                <p className={`text-2xl font-bold tabular-nums tracking-tight font-mono ${
+                                    overallUptimePct === "100" ? "text-emerald-400" : downCount > 0 ? "text-red-400" : "text-white"
+                                }`}>
+                                    {overallUptimePct !== null ? `${overallUptimePct}%` : "—"}
+                                </p>
+                            </div>
                         </div>
                     </div>
                 )}
@@ -131,9 +157,8 @@ export default function Dashboard() {
                 )}
 
                 {/* Add website form */}
-                <form onSubmit={handleAdd} className="glass rounded-2xl p-5">
-                    <h2 className="text-sm font-semibold text-slate-300 mb-3">Monitor a new website</h2>
-                    <div className="flex gap-2">
+                <div>
+                    <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-2">
                         <input
                             type="url"
                             placeholder="https://example.com"
@@ -145,24 +170,24 @@ export default function Dashboard() {
                         <button
                             type="submit"
                             disabled={adding}
-                            className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:text-emerald-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all whitespace-nowrap shadow-lg shadow-emerald-500/20"
+                            className="bg-emerald-500 hover:bg-emerald-400 disabled:bg-emerald-800 disabled:text-emerald-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition-all whitespace-nowrap shadow-lg shadow-emerald-500/20 w-full sm:w-auto"
                         >
-                            {adding ? "Adding…" : "Add website"}
+                            {adding ? "Adding…" : "Add monitor"}
                         </button>
-                    </div>
+                    </form>
                     {addError && (
                         <p className="text-xs text-red-400 mt-2">{addError}</p>
                     )}
-                </form>
+                </div>
 
                 {/* Website list */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                            Your websites
-                        </h2>
+                        <span className="text-sm font-medium text-slate-400">{total > 0 ? `${total} monitor${total !== 1 ? "s" : ""}` : "No monitors yet"}</span>
                         {total > 0 && (
-                            <span className="text-xs text-slate-500">Refreshes every 5m</span>
+                            <span className="text-xs text-slate-500">
+                                {lastRefreshed ? `Updated ${timeAgo(lastRefreshed.toISOString())}` : "Auto-refreshes every 10m"}
+                            </span>
                         )}
                     </div>
 
@@ -197,7 +222,7 @@ export default function Dashboard() {
                     )}
 
                     <div className="space-y-3">
-                        {websites?.map(w => (
+                        {sortedWebsites.map(w => (
                             <WebsiteCard
                                 key={w.id}
                                 website={w}

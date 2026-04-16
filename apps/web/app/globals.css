@@ -9,6 +9,36 @@
   --color-accent: #10b981;
   --color-accent-dim: rgba(16, 185, 129, 0.12);
   --bg-dark: #080c18;
+
+  /* Theme tokens (dark default) */
+  --theme-bg: #080c18;
+  --theme-card: rgba(255, 255, 255, 0.04);
+  --theme-card-border: rgba(255, 255, 255, 0.08);
+  --theme-card-hover: rgba(255, 255, 255, 0.06);
+  --theme-input-bg: rgba(255, 255, 255, 0.04);
+  --theme-input-border: rgba(255, 255, 255, 0.08);
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #cbd5e1;
+  --theme-text-muted: #64748b;
+  --theme-divider: rgba(255, 255, 255, 0.06);
+  --theme-skeleton-from: rgba(255, 255, 255, 0.04);
+  --theme-skeleton-to: rgba(255, 255, 255, 0.10);
+}
+
+/* Light theme override */
+[data-theme="light"] {
+  --theme-bg: #f8fafc;
+  --theme-card: #ffffff;
+  --theme-card-border: #e2e8f0;
+  --theme-card-hover: #f1f5f9;
+  --theme-input-bg: #ffffff;
+  --theme-input-border: #cbd5e1;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-divider: #e2e8f0;
+  --theme-skeleton-from: #f1f5f9;
+  --theme-skeleton-to: #e2e8f0;
 }
 
 /* ─── Dark scrollbar ──────────────────────────────────────────────────────── */
@@ -155,9 +185,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.04) 25%,
-    rgba(255, 255, 255, 0.08) 50%,
-    rgba(255, 255, 255, 0.04) 75%
+    var(--theme-skeleton-from) 25%,
+    var(--theme-skeleton-to) 50%,
+    var(--theme-skeleton-from) 75%
   );
   background-size: 400px 100%;
   animation: shimmer 1.4s ease infinite;
@@ -165,20 +195,20 @@
 
 /* ─── Glass card ──────────────────────────────────────────────────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--theme-card);
+  border: 1px solid var(--theme-card-border);
   backdrop-filter: blur(12px);
 }
 
 .glass-hover:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--theme-card-hover);
 }
 
 /* ─── Dark input ──────────────────────────────────────────────────────────── */
 .dark-input {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--theme-input-bg);
+  border: 1px solid var(--theme-input-border);
+  color: var(--theme-text-primary);
   border-radius: 0.75rem;
   padding: 0.625rem 0.875rem;
   font-size: 0.875rem;

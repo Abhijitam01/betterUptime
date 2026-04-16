@@ -5,6 +5,15 @@ import useSWR from "swr";
 import { StatusBadge } from "./StatusBadge";
 import { api, type Website, type Tick } from "../lib/api";
 
+function timeAgo(iso: string): string {
+    const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const h = Math.floor(mins / 60);
+    if (h < 24) return `${h}h ago`;
+    return `${Math.floor(h / 24)}d ago`;
+}
+
 interface Props {
     website: Website;
     onDelete: (id: string) => void;
@@ -91,44 +100,58 @@ export function WebsiteCard({ website, onDelete, deleting }: Props) {
         onDelete(website.id);
     }
 
+    const stripeClass =
+        status === "Up" ? "bg-emerald-500" :
+        status === "Down" ? "bg-red-500 animate-pulse" :
+        "bg-slate-600/50";
+
     return (
         <Link
             href={`/dashboard/${website.id}`}
-            className="group glass rounded-2xl p-5 hover:bg-white/[0.05] transition-all flex items-center gap-4 cursor-pointer"
+            className="group glass rounded-2xl flex items-stretch overflow-hidden hover:bg-white/[0.05] transition-all cursor-pointer"
         >
-            {/* Left: status + name */}
-            <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2.5 flex-wrap">
-                    <StatusBadge status={status} />
-                    <span className="font-medium text-white truncate text-sm group-hover:text-emerald-400 transition-colors">
-                        {website.display_name || website.url}
-                    </span>
+            {/* Status stripe */}
+            <div className={`w-1 shrink-0 ${stripeClass}`} />
+
+            <div className={`flex items-center gap-4 p-5 flex-1 min-w-0 ${status === "Down" ? "bg-red-500/[0.025]" : ""}`}>
+                {/* Left: status + name */}
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                        <StatusBadge status={status} />
+                        <span className="font-medium text-white truncate text-sm group-hover:text-emerald-400 transition-colors">
+                            {website.display_name || website.url}
+                        </span>
+                    </div>
+                    {website.display_name && (
+                        <p className="mt-0.5 text-xs text-slate-500 truncate">{website.url}</p>
+                    )}
+                    {website.latestTick ? (
+                        <p className="mt-1 text-xs text-slate-500">Checked {timeAgo(website.latestTick.createdAt)}</p>
+                    ) : (
+                        <p className="mt-1 text-xs text-slate-500">No checks yet</p>
+                    )}
                 </div>
-                {website.display_name && (
-                    <p className="mt-0.5 text-xs text-slate-500 truncate">{website.url}</p>
-                )}
-                <p className="mt-1 text-xs text-slate-500">
-                    Added {new Date(website.time_added).toLocaleDateString()}
-                </p>
-            </div>
 
-            {/* Right: sparkline + delete */}
-            <div className="flex items-center gap-3 shrink-0">
-                <MiniSparkline websiteId={website.id} />
+                {/* Right: sparkline + delete */}
+                <div className="flex items-center gap-3 shrink-0">
+                    <div className="hidden sm:flex items-center gap-3 shrink-0">
+                        <MiniSparkline websiteId={website.id} />
+                    </div>
 
-                <button
-                    onClick={handleDelete}
-                    disabled={deleting}
-                    aria-label="Delete"
-                    className="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all disabled:opacity-30 p-1 shrink-0"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="3 6 5 6 21 6" />
-                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                        <path d="M10 11v6M14 11v6" />
-                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
-                    </svg>
-                </button>
+                    <button
+                        onClick={handleDelete}
+                        disabled={deleting}
+                        aria-label="Delete monitor"
+                        className="p-2 text-slate-600 hover:text-red-400 transition-all disabled:opacity-30 opacity-60 sm:opacity-0 sm:group-hover:opacity-100 focus-visible:opacity-100 shrink-0"
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                            <path d="M10 11v6M14 11v6" />
+                            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </Link>
     );

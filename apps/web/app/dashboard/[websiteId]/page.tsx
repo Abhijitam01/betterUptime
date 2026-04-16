@@ -190,21 +190,22 @@ function AlertSettingsSection({ websiteId }: { websiteId: string }) {
                     <button
                         role="switch"
                         aria-checked={emailEnabled}
+                        aria-label="Email alerts"
                         onClick={() => setEmailEnabled(v => !v)}
-                        className={`relative w-10 h-5 rounded-full transition-colors ${emailEnabled ? "bg-emerald-500" : "bg-white/[0.12]"}`}
+                        className={`relative w-12 h-6 rounded-full transition-colors ${emailEnabled ? "bg-emerald-500" : "bg-white/[0.12]"}`}
                     >
-                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${emailEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${emailEnabled ? "translate-x-6" : "translate-x-0"}`} />
                     </button>
                 </label>
 
                 {emailEnabled && (
                     <div className="pl-4 border-l-2 border-white/[0.08] space-y-2">
                         <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-400">
-                            <input type="checkbox" checked={alertOnDown} onChange={e => setAlertOnDown(e.target.checked)} className="rounded border-slate-600 text-emerald-500 focus:ring-emerald-400 bg-white/[0.08]" />
+                            <input type="checkbox" checked={alertOnDown} onChange={e => setAlertOnDown(e.target.checked)} className="accent-emerald-500 w-4 h-4 cursor-pointer" />
                             Alert on down
                         </label>
                         <label className="flex items-center gap-2 cursor-pointer text-sm text-slate-400">
-                            <input type="checkbox" checked={alertOnRecovery} onChange={e => setAlertOnRecovery(e.target.checked)} className="rounded border-slate-600 text-emerald-500 focus:ring-emerald-400 bg-white/[0.08]" />
+                            <input type="checkbox" checked={alertOnRecovery} onChange={e => setAlertOnRecovery(e.target.checked)} className="accent-emerald-500 w-4 h-4 cursor-pointer" />
                             Alert on recovery
                         </label>
                     </div>
@@ -283,11 +284,13 @@ function MaintenanceSection({ websiteId }: { websiteId: string }) {
                             <label className="block text-xs text-slate-500 font-medium mb-1">Starts at</label>
                             <input type="datetime-local" value={startsAt} min={now} onChange={e => setStartsAt(e.target.value)}
                                 className="dark-input" />
+                            <p className="text-[10px] text-slate-500 mt-0.5">Your local time</p>
                         </div>
                         <div>
                             <label className="block text-xs text-slate-500 font-medium mb-1">Ends at</label>
                             <input type="datetime-local" value={endsAt} min={startsAt || now} onChange={e => setEndsAt(e.target.value)}
                                 className="dark-input" />
+                            <p className="text-[10px] text-slate-500 mt-0.5">Your local time</p>
                         </div>
                     </div>
                     <input
@@ -493,10 +496,11 @@ function MonitorSettingsSection({ website, onSaved }: { website: Website; onSave
                     <button
                         role="switch"
                         aria-checked={sslEnabled}
+                        aria-label="SSL certificate monitoring"
                         onClick={() => setSslEnabled(v => !v)}
-                        className={`relative w-10 h-5 rounded-full transition-colors shrink-0 ${sslEnabled ? "bg-emerald-500" : "bg-white/[0.12]"}`}
+                        className={`relative w-12 h-6 rounded-full transition-colors shrink-0 ${sslEnabled ? "bg-emerald-500" : "bg-white/[0.12]"}`}
                     >
-                        <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${sslEnabled ? "translate-x-5" : "translate-x-0.5"}`} />
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${sslEnabled ? "translate-x-6" : "translate-x-0"}`} />
                     </button>
                 </label>
             </div>
@@ -604,7 +608,7 @@ function HistoryTable({ ticks }: { ticks: Tick[] }) {
                         <tr className="text-xs text-slate-500">
                             <th className="text-left px-6 py-3 font-medium">Time</th>
                             <th className="text-left px-6 py-3 font-medium">Status</th>
-                            <th className="text-left px-6 py-3 font-medium">Response</th>
+                            <th className="text-right px-6 py-3 font-medium">Response</th>
                             <th className="text-left px-6 py-3 font-medium">Region</th>
                         </tr>
                     </thead>
@@ -620,7 +624,7 @@ function HistoryTable({ ticks }: { ticks: Tick[] }) {
                                 <td className="px-6 py-3">
                                     <StatusBadge status={tick.status} />
                                 </td>
-                                <td className={`px-6 py-3 font-mono text-xs font-medium ${responseClass(tick.response_time_ms)}`}>
+                                <td className={`px-6 py-3 font-mono text-xs font-medium text-right ${responseClass(tick.response_time_ms)}`}>
                                     {tick.response_time_ms}ms
                                 </td>
                                 <td className="px-6 py-3 text-xs text-slate-500 font-mono">
@@ -662,9 +666,10 @@ export default function WebsiteDetail() {
     const loading = loadingMeta || loadingTicks;
     const status = website?.latestTick?.status ?? "Unknown";
     const latestMs = website?.latestTick?.response_time_ms;
+    const [activeTab, setActiveTab] = useState<"overview" | "settings">("overview");
 
     return (
-        <div className="min-h-screen bg-[#080c18]">
+        <div className="min-h-screen bg-[var(--theme-bg)]">
             <Navbar />
 
             <main className="mx-auto max-w-4xl px-4 py-8 space-y-5">
@@ -682,7 +687,7 @@ export default function WebsiteDetail() {
                     <div className="space-y-4">
                         <div className="glass rounded-2xl p-6">
                             <div className="skeleton h-5 w-1/2 rounded-full mb-4" />
-                            <div className="grid grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/[0.06]">
                                 {[1,2,3].map(i => <div key={i} className="skeleton h-8 rounded-xl" />)}
                             </div>
                         </div>
@@ -691,16 +696,16 @@ export default function WebsiteDetail() {
 
                 {!loading && website && (
                     <>
-                        {/* Header card */}
-                        <div className="glass rounded-2xl p-6">
-                            <div className="flex items-start justify-between gap-4 mb-5">
+                        {/* Identity card */}
+                        <div className="glass rounded-2xl p-5">
+                            <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0 flex-1">
-                                    <p className="text-xs text-slate-500 font-medium mb-1">MONITORING</p>
+                                    <p className="text-[11px] text-slate-500 font-medium uppercase tracking-wider mb-1">Monitoring</p>
                                     <DisplayNameEditor website={website} onSaved={() => mutateWebsite()} />
                                     {website.display_name && (
                                         <p className="text-xs text-slate-500 mt-0.5 truncate">{website.url}</p>
                                     )}
-                                    <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                                         <SslBadge expiresAt={website.ssl_expires_at} />
                                         {website.keyword_monitor && (
                                             <span className="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/25">
@@ -716,67 +721,98 @@ export default function WebsiteDetail() {
                                 </div>
                                 <StatusBadge status={status} />
                             </div>
+                        </div>
 
-                            {/* Uptime bars */}
-                            {ticks && ticks.length > 0 && (
-                                <div className="mb-5">
-                                    <UptimeBars ticks={ticks} />
+                        {/* Stats row */}
+                        <div className="grid grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden">
+                            <div className="bg-[var(--theme-bg)] px-4 py-3">
+                                <p className="text-[11px] text-slate-500 mb-0.5">Uptime</p>
+                                <p className="text-xl font-bold text-white tabular-nums">{ticks ? uptimePercent(ticks) : "—"}</p>
+                                <p className="text-[11px] text-slate-500">last 50 checks</p>
+                            </div>
+                            <div className="bg-[var(--theme-bg)] px-4 py-3">
+                                <p className="text-[11px] text-slate-500 mb-0.5">Avg response</p>
+                                <p className={`text-xl font-bold tabular-nums ${latestMs ? responseClass(latestMs) : "text-white"}`}>
+                                    {ticks ? avgResponseTime(ticks) : "—"}
+                                </p>
+                                <p className="text-[11px] text-slate-500">when up</p>
+                            </div>
+                            <div className="bg-[var(--theme-bg)] px-4 py-3">
+                                <p className="text-[11px] text-slate-500 mb-0.5">Last check</p>
+                                <p className="text-xl font-bold text-white tabular-nums">
+                                    {website.latestTick
+                                        ? new Date(website.latestTick.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                                        : "Never"}
+                                </p>
+                                <p className="text-[11px] text-slate-500">
+                                    {website.latestTick ? new Date(website.latestTick.createdAt).toLocaleDateString() : ""}
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Tab nav */}
+                        <div className="flex gap-0 border-b border-white/[0.06] -mb-px">
+                            {(["overview", "settings"] as const).map(tab => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-4 py-2.5 text-sm font-medium capitalize transition-all border-b-2 -mb-px ${
+                                        activeTab === tab
+                                            ? "border-emerald-400 text-white"
+                                            : "border-transparent text-slate-400 hover:text-slate-200 hover:border-white/20"
+                                    }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Overview tab */}
+                        {activeTab === "overview" && (
+                            <>
+                                {ticks && ticks.length > 0 && (
+                                    <>
+                                        {/* Uptime bars */}
+                                        <div className="glass rounded-2xl px-5 py-4 space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <span className="text-xs font-medium text-slate-400">Last 50 checks</span>
+                                                <span className="text-xs text-slate-500">{uptimePercent(ticks)} uptime</span>
+                                            </div>
+                                            <UptimeBars ticks={ticks} />
+                                        </div>
+
+                                        {/* Response time chart */}
+                                        <div className="glass rounded-2xl p-5">
+                                            <h2 className="text-sm font-medium text-slate-400 mb-4">Response time</h2>
+                                            <ResponseTimeChart ticks={ticks} />
+                                        </div>
+                                    </>
+                                )}
+
+                                <IncidentTimeline websiteId={websiteId} />
+
+                                {ticks && ticks.length > 0 && (
+                                    <HistoryTable ticks={ticks} />
+                                )}
+
+                                {ticks?.length === 0 && (
+                                    <div className="glass border-dashed rounded-2xl p-16 text-center">
+                                        <p className="text-slate-400 text-sm">No checks recorded yet.</p>
+                                        <p className="text-slate-500 text-xs mt-1">The worker will check this site shortly.</p>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {/* Settings tab */}
+                        {activeTab === "settings" && (
+                            <div className="space-y-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <AlertSettingsSection websiteId={websiteId} />
+                                    <MonitorSettingsSection website={website} onSaved={() => mutateWebsite()} />
                                 </div>
-                            )}
-
-                            <div className="grid grid-cols-3 gap-4 pt-5 border-t border-white/[0.06]">
-                                <StatCard
-                                    label="Uptime"
-                                    value={ticks ? uptimePercent(ticks) : "—"}
-                                    sub="last 50 checks"
-                                />
-                                <StatCard
-                                    label="Avg response"
-                                    value={ticks ? avgResponseTime(ticks) : "—"}
-                                    sub="when up"
-                                    valueClass={latestMs ? responseClass(latestMs) : ""}
-                                />
-                                <StatCard
-                                    label="Last check"
-                                    value={
-                                        website.latestTick
-                                            ? new Date(website.latestTick.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-                                            : "Never"
-                                    }
-                                    sub={website.latestTick ? new Date(website.latestTick.createdAt).toLocaleDateString() : ""}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Response time chart */}
-                        {ticks && ticks.length > 0 && (
-                            <div className="glass rounded-2xl p-6">
-                                <h2 className="text-sm font-semibold text-slate-300 mb-4">Response time over time</h2>
-                                <ResponseTimeChart ticks={ticks} />
-                            </div>
-                        )}
-
-                        {/* Incident timeline */}
-                        <IncidentTimeline websiteId={websiteId} />
-
-                        {/* Settings grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <AlertSettingsSection websiteId={websiteId} />
-                            <MonitorSettingsSection website={website} onSaved={() => mutateWebsite()} />
-                        </div>
-
-                        <StatusPageSection website={website} onSaved={() => mutateWebsite()} />
-                        <MaintenanceSection websiteId={websiteId} />
-
-                        {/* History table */}
-                        {ticks && ticks.length > 0 && (
-                            <HistoryTable ticks={ticks} />
-                        )}
-
-                        {ticks?.length === 0 && (
-                            <div className="glass border-dashed rounded-2xl p-16 text-center">
-                                <p className="text-slate-400 text-sm">No checks recorded yet.</p>
-                                <p className="text-slate-500 text-xs mt-1">The worker will check this site shortly.</p>
+                                <StatusPageSection website={website} onSaved={() => mutateWebsite()} />
+                                <MaintenanceSection websiteId={websiteId} />
                             </div>
                         )}
                     </>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { clearToken } from "../lib/auth";
+import { ThemeToggle } from "./ThemeToggle";
 
 export function Navbar() {
     const router = useRouter();
@@ -23,10 +24,11 @@ export function Navbar() {
     }
 
     return (
-        <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[#080c18]/90 backdrop-blur-md">
+        <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[var(--theme-bg)]/90 backdrop-blur-md">
             <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
                 <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
                     <span className="font-semibold text-white tracking-tight text-sm">BetterUptime</span>
@@ -42,6 +44,7 @@ export function Navbar() {
                     <Link href="/settings" className={navClass("/settings")}>
                         Settings
                     </Link>
+                    <ThemeToggle />
                     <button
                         onClick={signout}
                         className="text-xs text-slate-500 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
