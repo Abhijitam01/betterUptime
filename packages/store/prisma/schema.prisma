@@ -1,0 +1,105 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id             String          @id @default(uuid())
+  username       String          @unique
+  password       String
+  email          String?         @unique
+  email_verified Boolean         @default(false)
+  websites       website[]
+  refresh_tokens refresh_token[]
+}
+
+model website {
+  id                  String               @id @default(uuid())
+  url                 String
+  user_id             String
+  time_added          DateTime
+  display_name        String?
+  check_interval_sec  Int                  @default(60)
+  keyword_monitor     String?
+  ssl_monitor_enabled Boolean              @default(false)
+  ssl_expires_at      DateTime?
+  public_slug         String?              @unique
+  ticks               website_tick[]
+  user                user                 @relation(fields: [user_id], references: [id])
+  incidents           incident[]
+  maintenance_windows maintenance_window[]
+  alert_setting       alert_setting?
+}
+
+model region {
+  id     String         @id @default(uuid())
+  name   String
+  tickes website_tick[]
+}
+
+model website_tick {
+  id               String         @id @default(uuid())
+  response_time_ms Int
+  status           website_status
+  region           region         @relation(fields: [region_id], references: [id])
+  website          website        @relation(fields: [website_id], references: [id])
+  region_id        String
+  website_id       String
+  createdAt        DateTime       @default(now())
+}
+
+model incident {
+  id          String    @id @default(uuid())
+  website_id  String
+  website     website   @relation(fields: [website_id], references: [id])
+  started_at  DateTime  @default(now())
+  resolved_at DateTime?
+  cause       String?
+}
+
+model maintenance_window {
+  id         String   @id @default(uuid())
+  website_id String
+  website    website  @relation(fields: [website_id], references: [id])
+  starts_at  DateTime
+  ends_at    DateTime
+  label      String?
+}
+
+model alert_setting {
+  id               String  @id @default(uuid())
+  website_id       String  @unique
+  website          website @relation(fields: [website_id], references: [id])
+  email_enabled    Boolean @default(false)
+  webhook_url      String?
+  alert_on_down    Boolean @default(true)
+  alert_on_recovery Boolean @default(true)
+}
+
+model refresh_token {
+  id         String   @id @default(uuid())
+  user_id    String
+  user       user     @relation(fields: [user_id], references: [id])
+  token      String   @unique
+  expires_at DateTime
+  revoked    Boolean  @default(false)
+  created_at DateTime @default(now())
+}
+
+enum website_status {
+  Up
+  Down
+  Unknown
+  keyword_failed
+}
