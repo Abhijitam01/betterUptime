@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef } from "react";
 import { LandingNav } from "../components/LandingNav";
 
 // ─── Components ────────────────────────────────────────────────────────────
