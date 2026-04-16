@@ -22,7 +22,7 @@ export default function Dashboard() {
     const { data: websites, error, mutate, isLoading } = useSWR<Website[]>(
         "websites",
         () => api.listWebsites(),
-        { refreshInterval: 300_000 }
+        { refreshInterval: 30_000 }
     );
 
     async function handleAdd(e: FormEvent) {
