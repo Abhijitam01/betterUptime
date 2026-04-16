@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch index.ts",
-    "start": "bun index.ts"
+    "start": "bunx prisma generate --schema=../../packages/store/prisma/schema.prisma && bun index.ts"
   },
   "dependencies": {
     "axios": "^1.10.0",
