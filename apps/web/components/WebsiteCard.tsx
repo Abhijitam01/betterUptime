@@ -15,7 +15,7 @@ function MiniSparkline({ websiteId }: { websiteId: string }) {
     const { data: ticks } = useSWR<Tick[]>(
         `history-${websiteId}`,
         () => api.getWebsiteHistory(websiteId),
-        { refreshInterval: 30_000 }
+        { refreshInterval: 600_000 }
     );
 
     const count = 20;

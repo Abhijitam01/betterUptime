@@ -348,30 +348,63 @@ function MaintenanceSection({ websiteId }: { websiteId: string }) {
     );
 }
 
+const PAGE_SIZE = 10;
+
+function Paginator({ page, totalPages, onChange }: { page: number; totalPages: number; onChange: (p: number) => void }) {
+    if (totalPages <= 1) return null;
+    return (
+        <div className="flex items-center justify-center gap-1 px-6 py-3 border-t border-white/[0.06]">
+            <button
+                onClick={() => onChange(page - 1)}
+                disabled={page === 1}
+                className="px-2.5 py-1 text-xs rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+                ←
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                <button
+                    key={p}
+                    onClick={() => onChange(p)}
+                    className={`px-2.5 py-1 text-xs rounded-lg font-medium transition ${
+                        p === page
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : "text-slate-500 hover:text-white hover:bg-white/[0.06]"
+                    }`}
+                >
+                    {p}
+                </button>
+            ))}
+            <button
+                onClick={() => onChange(page + 1)}
+                disabled={page === totalPages}
+                className="px-2.5 py-1 text-xs rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed transition"
+            >
+                →
+            </button>
+        </div>
+    );
+}
+
 function IncidentTimeline({ websiteId }: { websiteId: string }) {
-    const { data: incidents } = useSWR<Incident[]>(`incidents-${websiteId}`, () => api.getIncidents(websiteId), { refreshInterval: 30_000 });
+    const { data: incidents } = useSWR<Incident[]>(`incidents-${websiteId}`, () => api.getIncidents(websiteId), { refreshInterval: 600_000 });
+    const [page, setPage] = useState(1);
 
     if (!incidents || incidents.length === 0) return null;
 
     const open = incidents.filter(i => !i.resolved_at);
     const resolved = incidents.filter(i => i.resolved_at);
+    const all = [...open, ...resolved];
+    const totalPages = Math.ceil(all.length / PAGE_SIZE);
+    const visible = all.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
     return (
         <div className="glass rounded-2xl overflow-hidden">
-            <div className="px-6 py-4 border-b border-white/[0.06]">
+            <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-300">Incident history</h2>
+                <span className="text-xs text-slate-500">{all.length} total</span>
             </div>
             <div className="divide-y divide-white/[0.04]">
-                {open.map(i => (
-                    <div key={i.id} className="px-6 py-4 flex items-start justify-between gap-4 bg-red-500/[0.06]">
-                        <div>
-                            <p className="text-sm font-medium text-red-400">{i.cause ?? "Down"}</p>
-                            <p className="text-xs text-red-500/70 mt-0.5">Started {new Date(i.started_at).toLocaleString()} · ongoing {formatDuration(i.started_at, null)}</p>
-                        </div>
-                        <span className="text-xs bg-red-500/15 text-red-400 rounded-full px-2 py-0.5 font-medium whitespace-nowrap shrink-0">Ongoing</span>
-                    </div>
-                ))}
-                {resolved.map(i => (
+                {visible.map(i => i.resolved_at ? (
                     <div key={i.id} className="px-6 py-4 flex items-start justify-between gap-4">
                         <div>
                             <p className="text-sm font-medium text-slate-300">{i.cause ?? "Down"}</p>
@@ -381,8 +414,17 @@ function IncidentTimeline({ websiteId }: { websiteId: string }) {
                         </div>
                         <span className="text-xs bg-emerald-500/15 text-emerald-400 rounded-full px-2 py-0.5 font-medium whitespace-nowrap shrink-0">Resolved</span>
                     </div>
+                ) : (
+                    <div key={i.id} className="px-6 py-4 flex items-start justify-between gap-4 bg-red-500/[0.06]">
+                        <div>
+                            <p className="text-sm font-medium text-red-400">{i.cause ?? "Down"}</p>
+                            <p className="text-xs text-red-500/70 mt-0.5">Started {new Date(i.started_at).toLocaleString()} · ongoing {formatDuration(i.started_at, null)}</p>
+                        </div>
+                        <span className="text-xs bg-red-500/15 text-red-400 rounded-full px-2 py-0.5 font-medium whitespace-nowrap shrink-0">Ongoing</span>
+                    </div>
                 ))}
             </div>
+            <Paginator page={page} totalPages={totalPages} onChange={setPage} />
         </div>
     );
 }
@@ -545,6 +587,55 @@ function StatusPageSection({ website, onSaved }: { website: Website; onSaved: ()
     );
 }
 
+function HistoryTable({ ticks }: { ticks: Tick[] }) {
+    const [page, setPage] = useState(1);
+    const totalPages = Math.ceil(ticks.length / PAGE_SIZE);
+    const visible = ticks.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+    return (
+        <div className="glass rounded-2xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between">
+                <h2 className="text-sm font-semibold text-slate-300">Check history</h2>
+                <span className="text-xs text-slate-500">{ticks.length} checks</span>
+            </div>
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead className="bg-white/[0.03]">
+                        <tr className="text-xs text-slate-500">
+                            <th className="text-left px-6 py-3 font-medium">Time</th>
+                            <th className="text-left px-6 py-3 font-medium">Status</th>
+                            <th className="text-left px-6 py-3 font-medium">Response</th>
+                            <th className="text-left px-6 py-3 font-medium">Region</th>
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/[0.04]">
+                        {visible.map(tick => (
+                            <tr key={tick.id} className="hover:bg-white/[0.02] transition-colors">
+                                <td className="px-6 py-3 text-slate-500 text-xs whitespace-nowrap">
+                                    {new Date(tick.createdAt).toLocaleString([], {
+                                        month: "short", day: "numeric",
+                                        hour: "2-digit", minute: "2-digit"
+                                    })}
+                                </td>
+                                <td className="px-6 py-3">
+                                    <StatusBadge status={tick.status} />
+                                </td>
+                                <td className={`px-6 py-3 font-mono text-xs font-medium ${responseClass(tick.response_time_ms)}`}>
+                                    {tick.response_time_ms}ms
+                                </td>
+                                <td className="px-6 py-3 text-xs text-slate-500 font-mono">
+                                    {tick.region_id.slice(0, 8)}…
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <Paginator page={page} totalPages={totalPages} onChange={setPage} />
+        </div>
+    );
+}
+
 // ─── page ─────────────────────────────────────────────────────────────────────
 
 export default function WebsiteDetail() {
@@ -559,13 +650,13 @@ export default function WebsiteDetail() {
     const { data: website, isLoading: loadingMeta, mutate: mutateWebsite } = useSWR<Website>(
         `website-${websiteId}`,
         () => api.getWebsite(websiteId),
-        { refreshInterval: 30_000 }
+        { refreshInterval: 600_000 }
     );
 
     const { data: ticks, isLoading: loadingTicks } = useSWR<Tick[]>(
         `history-${websiteId}`,
         () => api.getWebsiteHistory(websiteId),
-        { refreshInterval: 30_000 }
+        { refreshInterval: 600_000 }
     );
 
     const loading = loadingMeta || loadingTicks;
@@ -679,44 +770,7 @@ export default function WebsiteDetail() {
 
                         {/* History table */}
                         {ticks && ticks.length > 0 && (
-                            <div className="glass rounded-2xl overflow-hidden">
-                                <div className="px-6 py-4 border-b border-white/[0.06]">
-                                    <h2 className="text-sm font-semibold text-slate-300">Check history</h2>
-                                </div>
-                                <div className="overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                        <thead className="bg-white/[0.03]">
-                                            <tr className="text-xs text-slate-500">
-                                                <th className="text-left px-6 py-3 font-medium">Time</th>
-                                                <th className="text-left px-6 py-3 font-medium">Status</th>
-                                                <th className="text-left px-6 py-3 font-medium">Response</th>
-                                                <th className="text-left px-6 py-3 font-medium">Region</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-white/[0.04]">
-                                            {ticks.map(tick => (
-                                                <tr key={tick.id} className="hover:bg-white/[0.02] transition-colors">
-                                                    <td className="px-6 py-3 text-slate-500 text-xs whitespace-nowrap">
-                                                        {new Date(tick.createdAt).toLocaleString([], {
-                                                            month: "short", day: "numeric",
-                                                            hour: "2-digit", minute: "2-digit"
-                                                        })}
-                                                    </td>
-                                                    <td className="px-6 py-3">
-                                                        <StatusBadge status={tick.status} />
-                                                    </td>
-                                                    <td className={`px-6 py-3 font-mono text-xs font-medium ${responseClass(tick.response_time_ms)}`}>
-                                                        {tick.response_time_ms}ms
-                                                    </td>
-                                                    <td className="px-6 py-3 text-xs text-slate-500 font-mono">
-                                                        {tick.region_id.slice(0, 8)}…
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                            <HistoryTable ticks={ticks} />
                         )}
 
                         {ticks?.length === 0 && (
