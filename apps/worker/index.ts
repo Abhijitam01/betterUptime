@@ -2,7 +2,7 @@ import "dotenv/config";
 import axios from "axios";
 import tls from "tls";
 import { Resend } from "resend";
-import { xAckBulk, xReadGroup } from "redisstream/client";
+import { xAckBulk, xReadGroup, ensureConsumerGroup } from "redisstream/client";
 import { prismaClient } from "store/client";
 
 const REGION_ID = process.env.REGION_ID!;
@@ -223,6 +223,8 @@ async function fetchWebsite(websiteId: string) {
 // ─── Main loop ────────────────────────────────────────────────────────────────
 
 async function main() {
+    await ensureConsumerGroup(REGION_ID);
+
     while (true) {
         const response = await xReadGroup(REGION_ID, WORKER_ID);
 

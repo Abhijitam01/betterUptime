@@ -45,3 +45,15 @@ async function xAck(consumerGroup: string, eventId: string) {
 export async function xAckBulk(consumerGroup: string, eventIds: string[]) {
     await Promise.all(eventIds.map(eventId => xAck(consumerGroup, eventId)));
 }
+
+/**
+ * Creates the stream (if it doesn't exist) and the consumer group.
+ * Safe to call multiple times — BUSYGROUP means the group already exists.
+ */
+export async function ensureConsumerGroup(consumerGroup: string) {
+    try {
+        await client.xGroupCreate(STREAM_NAME, consumerGroup, "0", { MKSTREAM: true });
+    } catch (err: any) {
+        if (!err?.message?.includes("BUSYGROUP")) throw err;
+    }
+}
