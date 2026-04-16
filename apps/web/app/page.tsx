@@ -1,31 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
 import { LandingNav } from "../components/LandingNav";
-
-// ─── Scroll reveal hook ────────────────────────────────────────────────────
-
-function useReveal() {
-    const ref = useRef<HTMLDivElement>(null);
-    useEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        const observer = new IntersectionObserver(
-            ([entry]) => {
-                if (entry.isIntersecting) {
-                    el.style.animationPlayState = "running";
-                    observer.disconnect();
-                }
-            },
-            { threshold: 0.1 }
-        );
-        el.style.animationPlayState = "paused";
-        observer.observe(el);
-        return () => observer.disconnect();
-    }, []);
-    return ref;
-}
 
 // ─── Components ────────────────────────────────────────────────────────────
 
@@ -100,10 +76,10 @@ function MockDashboard() {
 
                     {/* Site rows */}
                     <div className="space-y-2">
-                        <MockSiteRow url="myapp.com" ms={89} status="Up" uptime={99.9} />
-                        <MockSiteRow url="api.myapp.com" ms={134} status="Up" uptime={100} />
-                        <MockSiteRow url="docs.myapp.com" ms={210} status="Up" uptime={98.7} />
-                        <MockSiteRow url="admin.myapp.com" ms={67} status="Up" uptime={100} />
+                        <MockSiteRow url="myapp.com" ms={89} uptime={99.9} />
+                        <MockSiteRow url="api.myapp.com" ms={134} uptime={100} />
+                        <MockSiteRow url="docs.myapp.com" ms={210} uptime={98.7} />
+                        <MockSiteRow url="admin.myapp.com" ms={67} uptime={100} />
                     </div>
 
                     {/* Mini chart */}
@@ -122,7 +98,7 @@ function MockDashboard() {
     );
 }
 
-function MockSiteRow({ url, ms, status, uptime }: { url: string; ms: number; status: "Up" | "Down"; uptime: number }) {
+function MockSiteRow({ url, ms, uptime }: { url: string; ms: number; uptime: number }) {
     return (
         <div className="flex items-center justify-between rounded-xl bg-white/[0.03] border border-white/[0.04] px-3.5 py-2.5 hover:bg-white/[0.05] transition-colors">
             <div className="flex items-center gap-2.5 min-w-0">
