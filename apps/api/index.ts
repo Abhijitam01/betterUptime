@@ -3,9 +3,12 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import express from "express";
 import { z } from "zod";
+import rateLimit from "express-rate-limit";
 import { prismaClient } from "store/client";
 import { AuthInput } from "./types";
 import { authMiddleware } from "./middleware";
+
+if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET env var is required");
 
 const app = express();
 app.use(express.json());
@@ -22,17 +25,28 @@ app.use((req, res, next) => {
     next();
 });
 
+function normalizeUrl(raw: string): string {
+    const trimmed = raw.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+}
+
+const AddWebsiteInput = z.object({ url: z.string().url() });
+
 // ─── Websites ────────────────────────────────────────────────────────────────
 
 app.post("/website", authMiddleware, async (req, res) => {
-    if (!req.body.url) {
-        res.status(411).json({ message: "url is required" });
+    const parsed = AddWebsiteInput.safeParse({
+        url: typeof req.body.url === "string" ? normalizeUrl(req.body.url) : req.body.url,
+    });
+    if (!parsed.success) {
+        res.status(400).json({ message: "A valid URL is required" });
         return;
     }
 
     const website = await prismaClient.website.create({
         data: {
-            url: req.body.url,
+            url: parsed.data.url,
             time_added: new Date(),
             user_id: req.userId!
         }
@@ -76,11 +90,13 @@ app.delete("/website/:id", authMiddleware, async (req, res) => {
         return;
     }
 
-    await prismaClient.website_tick.deleteMany({ where: { website_id: req.params.id } });
-    await prismaClient.incident.deleteMany({ where: { website_id: req.params.id } });
-    await prismaClient.maintenance_window.deleteMany({ where: { website_id: req.params.id } });
-    await prismaClient.alert_setting.deleteMany({ where: { website_id: req.params.id } });
-    await prismaClient.website.delete({ where: { id: req.params.id } });
+    await prismaClient.$transaction([
+        prismaClient.website_tick.deleteMany({ where: { website_id: req.params.id } }),
+        prismaClient.incident.deleteMany({ where: { website_id: req.params.id } }),
+        prismaClient.maintenance_window.deleteMany({ where: { website_id: req.params.id } }),
+        prismaClient.alert_setting.deleteMany({ where: { website_id: req.params.id } }),
+        prismaClient.website.delete({ where: { id: req.params.id } }),
+    ]);
 
     res.json({ message: "Deleted" });
 });
@@ -171,7 +187,9 @@ app.patch("/user/me", authMiddleware, async (req, res) => {
 
 const UpdateWebsiteInput = z.object({
     display_name: z.string().max(100).nullable().optional(),
-    check_interval_sec: z.coerce.number().int().refine(v => [30,60,120,300,600].includes(v)).optional(),
+    check_interval_sec: z.coerce.number().int().refine(
+        v => ALLOWED_INTERVALS.includes(v as typeof ALLOWED_INTERVALS[number])
+    ).optional(),
     keyword_monitor: z.string().max(200).nullable().optional(),
     ssl_monitor_enabled: z.boolean().optional(),
 });
@@ -248,10 +266,15 @@ app.get("/website/:id/incidents", authMiddleware, async (req, res) => {
 
 // ─── Maintenance windows ──────────────────────────────────────────────────────
 
+const ALLOWED_INTERVALS = [30, 60, 120, 300, 600] as const;
+
 const MaintenanceInput = z.object({
     starts_at: z.string().datetime(),
     ends_at: z.string().datetime(),
     label: z.string().max(100).optional(),
+}).refine(d => new Date(d.ends_at) > new Date(d.starts_at), {
+    message: "ends_at must be after starts_at",
+    path: ["ends_at"],
 });
 
 app.get("/website/:id/maintenance", authMiddleware, async (req, res) => {
@@ -356,7 +379,10 @@ const CsvImportInput = z.object({
     rows: z.array(z.object({
         url: z.string().url(),
         display_name: z.string().max(100).optional(),
-        check_interval_sec: z.number().int().optional(),
+        check_interval_sec: z.number().int().refine(
+            v => ALLOWED_INTERVALS.includes(v as typeof ALLOWED_INTERVALS[number]),
+            { message: "check_interval_sec must be one of 30, 60, 120, 300, 600" }
+        ).optional(),
     })).min(1).max(500),
 });
 
@@ -426,7 +452,15 @@ app.post("/import/uptimerobot", authMiddleware, async (req, res) => {
     res.json({ imported: toCreate.length, skipped: monitors.length - toCreate.length });
 });
 
-app.post("/user/signup", async (req, res) => {
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 20,
+    message: { message: "Too many attempts, please try again later" },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+app.post("/user/signup", authLimiter, async (req, res) => {
     const data = AuthInput.safeParse(req.body);
     if (!data.success) {
         res.status(400).json({ message: "Invalid input" });
@@ -448,7 +482,7 @@ app.post("/user/signup", async (req, res) => {
     }
 });
 
-app.post("/user/signin", async (req, res) => {
+app.post("/user/signin", authLimiter, async (req, res) => {
     const data = AuthInput.safeParse(req.body);
     if (!data.success) {
         res.status(400).json({ message: "Invalid input" });

@@ -646,9 +646,14 @@ export default function WebsiteDetail() {
     const params = useParams();
     const router = useRouter();
     const websiteId = params.websiteId as string;
+    const [authChecked, setAuthChecked] = useState(false);
 
     useEffect(() => {
-        if (!getToken()) router.push("/signin");
+        if (!getToken()) {
+            router.push("/signin");
+        } else {
+            setAuthChecked(true);
+        }
     }, [router]);
 
     const { data: website, isLoading: loadingMeta, mutate: mutateWebsite } = useSWR<Website>(
@@ -667,6 +672,8 @@ export default function WebsiteDetail() {
     const status = website?.latestTick?.status ?? "Unknown";
     const latestMs = website?.latestTick?.response_time_ms;
     const [activeTab, setActiveTab] = useState<"overview" | "settings">("overview");
+
+    if (!authChecked) return null;
 
     return (
         <div className="min-h-screen bg-[var(--theme-bg)]">

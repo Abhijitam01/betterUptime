@@ -2,7 +2,7 @@ import "dotenv/config";
 import axios from "axios";
 import tls from "tls";
 import { Resend } from "resend";
-import { xAckBulk, xReadGroup, ensureConsumerGroup } from "redisstream/client";
+import { xAckBulk, xReadGroup, ensureConsumerGroup, kvSet, kvGet } from "redisstream/client";
 import { prismaClient } from "store/client";
 
 const REGION_ID = process.env.REGION_ID!;
@@ -13,9 +13,7 @@ if (!WORKER_ID) throw new Error("WORKER_ID not provided");
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-// In-memory cooldown tracker: websiteId → last alert timestamp
-const alertCooldown = new Map<string, number>();
-const ALERT_COOLDOWN_MS = 10 * 60 * 1000; // 10 minutes
+const ALERT_COOLDOWN_SEC = 10 * 60; // 10 minutes
 
 // SSL check cooldown: websiteId → last SSL check timestamp
 const sslLastChecked = new Map<string, number>();
@@ -33,6 +31,27 @@ async function isInMaintenanceWindow(websiteId: string): Promise<boolean> {
         }
     });
     return count > 0;
+}
+
+async function sendSslExpiryAlert(websiteId: string, websiteUrl: string, displayName: string, daysLeft: number) {
+    if (!resend) return;
+    const user = await prismaClient.user.findFirst({
+        where: { websites: { some: { id: websiteId } } },
+        select: { email: true }
+    });
+    if (!user?.email) return;
+
+    const cooldownKey = `ssl_alert_cooldown:${websiteId}`;
+    const coolingDown = await kvGet(cooldownKey);
+    if (coolingDown) return;
+    await kvSet(cooldownKey, "1", 24 * 60 * 60); // 24h cooldown for SSL alerts
+
+    await resend.emails.send({
+        from: process.env.RESEND_FROM ?? "BetterUptime <onboarding@resend.dev>",
+        to: user.email,
+        subject: `[BetterUptime] SSL certificate for ${displayName} expires in ${daysLeft} days`,
+        text: `The SSL certificate for ${displayName} (${websiteUrl}) will expire in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}. Please renew it to avoid browser warnings.`,
+    }).catch(err => console.error("SSL alert email failed:", err));
 }
 
 async function sendEmailAlert(to: string, websiteUrl: string, displayName: string, status: "Down" | "Up") {
@@ -73,8 +92,9 @@ async function triggerAlerts(
 ) {
     if (await isInMaintenanceWindow(websiteId)) return;
 
-    const lastAlert = alertCooldown.get(websiteId) ?? 0;
-    if (Date.now() - lastAlert < ALERT_COOLDOWN_MS) return;
+    const cooldownKey = `alert_cooldown:${websiteId}`;
+    const coolingDown = await kvGet(cooldownKey);
+    if (coolingDown) return;
 
     const setting = await prismaClient.alert_setting.findUnique({ where: { website_id: websiteId } });
     if (!setting) return;
@@ -82,7 +102,7 @@ async function triggerAlerts(
     const shouldAlert = (status === "Down" && setting.alert_on_down) || (status === "Up" && setting.alert_on_recovery);
     if (!shouldAlert) return;
 
-    alertCooldown.set(websiteId, Date.now());
+    await kvSet(cooldownKey, "1", ALERT_COOLDOWN_SEC);
 
     const user = await prismaClient.user.findFirst({
         where: { websites: { some: { id: websiteId } } },
@@ -142,7 +162,11 @@ async function fetchWebsite(websiteId: string) {
     let responseBody = "";
 
     try {
-        const response = await axios.get(website.url, { timeout: 10000 });
+        const response = await axios.get(website.url, {
+            timeout: 10000,
+            maxContentLength: 5 * 1024 * 1024, // 5 MB cap
+            maxBodyLength: 5 * 1024 * 1024,
+        });
         responseBody = typeof response.data === "string" ? response.data : JSON.stringify(response.data);
     } catch {
         status = "Down";
@@ -208,9 +232,9 @@ async function fetchWebsite(websiteId: string) {
                         data: { ssl_expires_at: expiry }
                     });
                     // Alert if expiring within 14 days
-                    const daysUntilExpiry = (expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+                    const daysUntilExpiry = Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                     if (daysUntilExpiry < 14) {
-                        await triggerAlerts(websiteId, website.url, displayName, "Down");
+                        await sendSslExpiryAlert(websiteId, website.url, displayName, daysUntilExpiry);
                     }
                 }
             } catch {

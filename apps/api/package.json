@@ -21,6 +21,7 @@
     "bcryptjs": "^2.4.3",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.3.2",
     "jsonwebtoken": "^9.0.2",
     "nanoid": "^5.1.9",
     "zod": "^3.25.67"

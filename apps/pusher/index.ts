@@ -1,9 +1,17 @@
 import "dotenv/config";
 import { prismaClient } from "store/client";
-import { xAddBulk } from "redisstream/client";
+import { xAddBulk, kvSet, kvGet } from "redisstream/client";
 
-// Track when each website was last enqueued: websiteId → timestamp
-const lastPushed = new Map<string, number>();
+const LAST_PUSHED_PREFIX = "pusher:last_pushed:";
+
+async function getLastPushed(websiteId: string): Promise<number> {
+    const val = await kvGet(`${LAST_PUSHED_PREFIX}${websiteId}`);
+    return val ? parseInt(val, 10) : 0;
+}
+
+async function setLastPushed(websiteId: string, ts: number) {
+    await kvSet(`${LAST_PUSHED_PREFIX}${websiteId}`, String(ts));
+}
 
 async function main() {
     const websites = await prismaClient.website.findMany({
@@ -11,14 +19,18 @@ async function main() {
     });
 
     const now = Date.now();
-    const due = websites.filter(w => {
-        const last = lastPushed.get(w.id) ?? 0;
-        return now - last >= w.check_interval_sec * 1000;
-    });
+
+    const dueSites = await Promise.all(
+        websites.map(async w => {
+            const last = await getLastPushed(w.id);
+            return now - last >= w.check_interval_sec * 1000 ? w : null;
+        })
+    );
+    const due = dueSites.filter((w): w is NonNullable<typeof w> => w !== null);
 
     if (due.length > 0) {
         await xAddBulk(due.map(w => ({ url: w.url, id: w.id })));
-        for (const w of due) lastPushed.set(w.id, now);
+        await Promise.all(due.map(w => setLastPushed(w.id, now)));
     }
 }
 

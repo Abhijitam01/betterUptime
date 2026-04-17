@@ -34,7 +34,8 @@ export async function xReadGroup(
         { COUNT: 5 }
     );
 
-    const messages: MessageType[] | undefined = (res?.[0] as any)?.messages;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const messages: MessageType[] | undefined = ((res as any)?.[0])?.messages;
     return messages;
 }
 
@@ -56,4 +57,22 @@ export async function ensureConsumerGroup(consumerGroup: string) {
     } catch (err: any) {
         if (!err?.message?.includes("BUSYGROUP")) throw err;
     }
+}
+
+// ─── Key/value helpers (used by worker + pusher for durable state) ─────────────
+
+export async function kvSet(key: string, value: string, ttlSeconds?: number) {
+    if (ttlSeconds !== undefined) {
+        await client.set(key, value, { EX: ttlSeconds });
+    } else {
+        await client.set(key, value);
+    }
+}
+
+export async function kvGet(key: string): Promise<string | null> {
+    return client.get(key);
+}
+
+export async function kvDel(key: string) {
+    await client.del(key);
 }

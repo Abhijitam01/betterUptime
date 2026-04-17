@@ -24,9 +24,14 @@ export default function Dashboard() {
     const [adding, setAdding] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [lastRefreshed, setLastRefreshed] = useState<Date | null>(null);
+    const [authChecked, setAuthChecked] = useState(false);
 
     useEffect(() => {
-        if (!getToken()) router.push("/signin");
+        if (!getToken()) {
+            router.push("/signin");
+        } else {
+            setAuthChecked(true);
+        }
     }, [router]);
 
     const { data: websites, error, mutate, isLoading } = useSWR<Website[]>(
@@ -84,6 +89,8 @@ export default function Dashboard() {
     const sortedWebsites = [...(websites ?? [])].sort((a, b) =>
         (statusOrder[a.latestTick?.status ?? "Unknown"] ?? 1) - (statusOrder[b.latestTick?.status ?? "Unknown"] ?? 1)
     );
+
+    if (!authChecked) return null;
 
     return (
         <div className="min-h-screen bg-[var(--theme-bg)]">
