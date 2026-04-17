@@ -387,7 +387,10 @@ const CsvImportInput = z.object({
 });
 
 app.post("/import/csv", authMiddleware, async (req, res) => {
-    const parsed = CsvImportInput.safeParse(req.body);
+    const normalized = Array.isArray(req.body?.rows)
+        ? { rows: req.body.rows.map((r: { url?: string; [k: string]: unknown }) => ({ ...r, url: typeof r.url === "string" ? normalizeUrl(r.url) : r.url })) }
+        : req.body;
+    const parsed = CsvImportInput.safeParse(normalized);
     if (!parsed.success) { res.status(400).json({ message: "Invalid rows" }); return; }
 
     const existing = await prismaClient.website.findMany({
