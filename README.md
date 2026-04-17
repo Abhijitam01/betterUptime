@@ -2,7 +2,43 @@
 
 A self-hosted website uptime monitoring platform. Add URLs to watch, get alerted when they go down, track response times, manage incidents, and share public status pages — all in one monorepo.
 
-![Architecture overview](./steps.png)
+## Architecture
+
+```mermaid
+flowchart LR
+    subgraph Clients
+        Browser["Browser"]
+    end
+
+    subgraph Apps
+        Web["Web\nNext.js 15\n:3000"]
+        API["API\nExpress + Zod\n:3001"]
+        Pusher["Pusher\nScheduler"]
+        Worker["Worker\nMonitor"]
+    end
+
+    subgraph Data
+        PG[("PostgreSQL")]
+        Redis[("Redis Stream")]
+    end
+
+    subgraph External
+        Sites["Monitored URLs"]
+        Resend["Resend\nEmail alerts"]
+        Webhooks["Webhooks\nSlack etc."]
+    end
+
+    Browser --> Web
+    Web -->|REST| API
+    API --> PG
+    Pusher -->|"read due sites"| PG
+    Pusher -->|"enqueue"| Redis
+    Redis -->|"consume"| Worker
+    Worker -->|"write ticks / incidents"| PG
+    Worker -->|HTTP ping| Sites
+    Worker --> Resend
+    Worker --> Webhooks
+```
 
 ---
 
