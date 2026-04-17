@@ -69,7 +69,6 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
 
     return (
         <div className="min-h-screen bg-[#080c18]">
-            {/* Header */}
             <header className="border-b border-white/[0.06] bg-[#080c18]/90 backdrop-blur-md">
                 <div className="mx-auto max-w-2xl px-4 h-14 flex items-center gap-2">
                     <span className="relative flex h-2 w-2">
@@ -81,7 +80,6 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
             </header>
 
             <main className="mx-auto max-w-2xl px-4 py-10 space-y-6">
-                {/* Status banner */}
                 <div className={`rounded-2xl px-6 py-5 ${isUp ? "bg-emerald-500/10 border border-emerald-500/25" : "bg-red-500/10 border border-red-500/25"}`}>
                     <div className="flex items-center gap-3 mb-1">
                         <span className="relative flex h-3 w-3">
@@ -98,7 +96,6 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
                     <p className="text-xs text-slate-500 mt-1">{data.url}</p>
                 </div>
 
-                {/* Uptime + bar */}
                 <div className="glass rounded-2xl p-5 space-y-3">
                     <div className="flex items-center justify-between">
                         <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Last 30 checks</span>
@@ -107,7 +104,6 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
                     <UptimeBar ticks={data.ticks} />
                 </div>
 
-                {/* Active incidents */}
                 {openIncidents.length > 0 && (
                     <div className="bg-red-500/10 border border-red-500/25 rounded-2xl p-5 space-y-2">
                         <h2 className="text-xs font-semibold text-red-400 uppercase tracking-wide">Active incident</h2>
@@ -120,7 +116,6 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
                     </div>
                 )}
 
-                {/* Past incidents */}
                 {data.incidents.filter(i => i.resolved_at).length > 0 && (
                     <div className="glass rounded-2xl p-5 space-y-3">
                         <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Recent incidents</h2>

@@ -21,7 +21,6 @@ export function LandingNav() {
             }`}
         >
             <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between">
-                {/* Logo */}
                 <div className="flex items-center gap-2.5">
                     <div className="relative flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/10 border border-emerald-500/25">
                         <span className="relative flex h-2.5 w-2.5">
@@ -32,7 +31,6 @@ export function LandingNav() {
                     <span className="text-white font-semibold tracking-tight">BetterUptime</span>
                 </div>
 
-                {/* Nav links */}
                 <nav className="hidden md:flex items-center gap-1">
                     <a
                         href="#features"
@@ -54,7 +52,6 @@ export function LandingNav() {
                     </a>
                 </nav>
 
-                {/* CTAs */}
                 <div className="flex items-center gap-2">
                     <Link
                         href="/signin"

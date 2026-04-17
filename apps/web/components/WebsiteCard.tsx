@@ -110,11 +110,9 @@ export function WebsiteCard({ website, onDelete, deleting }: Props) {
             href={`/dashboard/${website.id}`}
             className="group glass rounded-2xl flex items-stretch overflow-hidden hover:bg-white/[0.05] transition-all cursor-pointer"
         >
-            {/* Status stripe */}
             <div className={`w-1 shrink-0 ${stripeClass}`} />
 
             <div className={`flex items-center gap-4 p-5 flex-1 min-w-0 ${status === "Down" ? "bg-red-500/[0.025]" : ""}`}>
-                {/* Left: status + name */}
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
                         <StatusBadge status={status} />
@@ -132,7 +130,6 @@ export function WebsiteCard({ website, onDelete, deleting }: Props) {
                     )}
                 </div>
 
-                {/* Right: sparkline + delete */}
                 <div className="flex items-center gap-3 shrink-0">
                     <div className="hidden sm:flex items-center gap-3 shrink-0">
                         <MiniSparkline websiteId={website.id} />

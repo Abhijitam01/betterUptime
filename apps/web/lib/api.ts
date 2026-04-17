@@ -35,7 +35,6 @@ async function apiFetch<T>(path: string, init?: RequestInit, _retry = true): Pro
     const res = await fetch(`${BASE_URL}${path}`, { ...init, headers });
 
     if (res.status === 401 && _retry) {
-        // Token expired — try to refresh once
         let newToken: string | null;
         if (isRefreshing) {
             newToken = await new Promise<string | null>(resolve => { refreshQueue.push(resolve); });
@@ -56,8 +55,6 @@ async function apiFetch<T>(path: string, init?: RequestInit, _retry = true): Pro
 
     return res.json() as Promise<T>;
 }
-
-// ─── Types ────────────────────────────────────────────────────────────────────
 
 export type WebsiteStatus = "Up" | "Down" | "Unknown" | "keyword_failed";
 
@@ -118,10 +115,7 @@ export type ImportResult = {
     skipped: number;
 };
 
-// ─── API calls ────────────────────────────────────────────────────────────────
-
 export const api = {
-    // Auth
     signup(username: string, password: string) {
         return apiFetch<{ id: string }>("/user/signup", {
             method: "POST",
@@ -136,7 +130,6 @@ export const api = {
         });
     },
 
-    // User profile
     getMe() {
         return apiFetch<UserProfile>("/user/me");
     },
@@ -148,7 +141,6 @@ export const api = {
         });
     },
 
-    // Websites
     listWebsites() {
         return apiFetch<Website[]>("/websites");
     },
@@ -186,12 +178,10 @@ export const api = {
         return apiFetch<Website>(`/status/${websiteId}`);
     },
 
-    // Incidents
     getIncidents(websiteId: string) {
         return apiFetch<Incident[]>(`/website/${websiteId}/incidents`);
     },
 
-    // Alert settings
     getAlertSetting(websiteId: string) {
         return apiFetch<AlertSetting | null>(`/website/${websiteId}/alerts`);
     },
@@ -203,7 +193,6 @@ export const api = {
         });
     },
 
-    // Maintenance windows
     getMaintenanceWindows(websiteId: string) {
         return apiFetch<MaintenanceWindow[]>(`/website/${websiteId}/maintenance`);
     },
@@ -221,7 +210,6 @@ export const api = {
         });
     },
 
-    // Public status page
     enableStatusPage(websiteId: string) {
         return apiFetch<{ id: string; public_slug: string }>(`/website/${websiteId}/status-page`, {
             method: "POST",
@@ -234,7 +222,6 @@ export const api = {
         });
     },
 
-    // Import
     importCsv(rows: Array<{ url: string; display_name?: string; check_interval_sec?: number }>) {
         return apiFetch<ImportResult>("/import/csv", {
             method: "POST",

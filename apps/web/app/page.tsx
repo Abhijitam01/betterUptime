@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { LandingNav } from "../components/LandingNav";
 
-// ─── Components ────────────────────────────────────────────────────────────
-
 function RevealSection({ children, className = "", delay = 0 }: {
     children: React.ReactNode;
     className?: string;
@@ -42,7 +40,6 @@ function MockDashboard() {
     return (
         <div className="w-full max-w-2xl mx-auto">
             <div className="glass rounded-2xl overflow-hidden shadow-2xl shadow-black/60">
-                {/* Title bar */}
                 <div className="flex items-center gap-2 px-4 py-3 border-b border-white/[0.06] bg-white/[0.02]">
                     <div className="flex gap-1.5">
                         <span className="w-3 h-3 rounded-full bg-red-500/60" />
@@ -56,9 +53,7 @@ function MockDashboard() {
                     </div>
                 </div>
 
-                {/* Dashboard content */}
                 <div className="p-5 space-y-4">
-                    {/* Status banner */}
                     <div className="flex items-center justify-between rounded-xl bg-emerald-500/[0.08] border border-emerald-500/20 px-4 py-3">
                         <div className="flex items-center gap-2.5">
                             <span className="relative flex h-2.5 w-2.5">
@@ -75,7 +70,6 @@ function MockDashboard() {
                         </div>
                     </div>
 
-                    {/* Site rows */}
                     <div className="space-y-2">
                         <MockSiteRow url="myapp.com" ms={89} uptime={99.9} />
                         <MockSiteRow url="api.myapp.com" ms={134} uptime={100} />
@@ -83,7 +77,6 @@ function MockDashboard() {
                         <MockSiteRow url="admin.myapp.com" ms={67} uptime={100} />
                     </div>
 
-                    {/* Mini chart */}
                     <div className="rounded-xl bg-white/[0.02] border border-white/[0.04] p-4">
                         <div className="flex items-center justify-between mb-3">
                             <span className="text-xs text-slate-400 font-medium">Response time — myapp.com</span>
@@ -93,7 +86,6 @@ function MockDashboard() {
                     </div>
                 </div>
             </div>
-            {/* Glow */}
             <div className="absolute -inset-x-12 -bottom-10 h-24 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none" />
         </div>
     );
@@ -174,8 +166,6 @@ function FeatureCard({ icon, title, description, gradient, delay = 0 }: {
     );
 }
 
-// ─── Icons ─────────────────────────────────────────────────────────────────
-
 const ClockIcon = () => (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
@@ -217,23 +207,18 @@ const HistoryIcon = () => (
     </svg>
 );
 
-// ─── Page ──────────────────────────────────────────────────────────────────
-
 export default function Home() {
     return (
         <div className="min-h-screen bg-[#080c18] text-white overflow-x-hidden">
             <LandingNav />
 
-            {/* ─── Hero ─────────────────────────────────────────────── */}
             <section className="relative flex flex-col items-center justify-center min-h-screen px-4 pt-20 pb-32 text-center overflow-hidden">
 
-                {/* Gradient orbs */}
                 <div className="absolute inset-0 overflow-hidden pointer-events-none">
                     <div className="animate-orb-1 absolute top-1/4 left-1/4 w-[600px] h-[600px] rounded-full bg-emerald-500/[0.07] blur-3xl" />
                     <div className="animate-orb-2 absolute bottom-1/4 right-1/4 w-[500px] h-[500px] rounded-full bg-teal-500/[0.06] blur-3xl" />
                 </div>
 
-                {/* Grid background */}
                 <div
                     className="absolute inset-0 pointer-events-none"
                     style={{
@@ -244,13 +229,10 @@ export default function Home() {
                         backgroundSize: "60px 60px",
                     }}
                 />
-                {/* Radial fade */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_50%,transparent_20%,#080c18_75%)] pointer-events-none" />
 
-                {/* Content */}
                 <div className="relative z-10 mx-auto max-w-4xl space-y-7">
 
-                    {/* Badge */}
                     <div className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/[0.08] px-4 py-1.5 text-sm text-emerald-400 mb-2">
                         <span className="relative flex h-2 w-2">
                             <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
@@ -259,7 +241,6 @@ export default function Home() {
                         Open source · Self-hostable · Free forever
                     </div>
 
-                    {/* Headline */}
                     <h1 className="animate-fade-up-delay-1 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.04]">
                         Know before
                         <br />
@@ -268,13 +249,11 @@ export default function Home() {
                         </span>
                     </h1>
 
-                    {/* Sub */}
                     <p className="animate-fade-up-delay-2 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
                         BetterUptime monitors your websites every minute, tracks response times across
                         multiple regions, and sends instant alerts — so outages never catch you off guard.
                     </p>
 
-                    {/* CTAs */}
                     <div className="animate-fade-up-delay-3 flex items-center gap-3 justify-center flex-wrap pt-1">
                         <Link
                             href="/signup"
@@ -291,19 +270,16 @@ export default function Home() {
                         </Link>
                     </div>
 
-                    {/* Social proof */}
                     <p className="animate-fade-up-delay-4 text-xs text-slate-600">
                         No credit card required · Setup in under 2 minutes
                     </p>
                 </div>
 
-                {/* Hero visual */}
                 <div className="animate-float relative z-10 mt-20 w-full px-4">
                     <MockDashboard />
                 </div>
             </section>
 
-            {/* ─── Trust bar ────────────────────────────────────────── */}
             <section className="border-y border-white/[0.06] bg-white/[0.015] py-10 px-4">
                 <RevealSection className="mx-auto max-w-5xl">
                     <p className="text-center text-xs text-slate-600 uppercase tracking-widest font-medium mb-8">
@@ -319,7 +295,6 @@ export default function Home() {
                 </RevealSection>
             </section>
 
-            {/* ─── Stats ────────────────────────────────────────────── */}
             <section className="py-20 px-4">
                 <div className="mx-auto max-w-4xl grid grid-cols-2 md:grid-cols-4 gap-6">
                     {[
@@ -337,7 +312,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ─── Features ─────────────────────────────────────────── */}
             <section id="features" className="py-24 px-4 border-t border-white/[0.06]">
                 <div className="mx-auto max-w-5xl">
                     <RevealSection className="text-center mb-16">
@@ -399,7 +373,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ─── How it works ─────────────────────────────────────── */}
             <section id="how-it-works" className="py-24 px-4 border-t border-white/[0.06]">
                 <div className="mx-auto max-w-3xl">
                     <RevealSection className="text-center mb-16">
@@ -413,7 +386,6 @@ export default function Home() {
                     </RevealSection>
 
                     <div className="relative">
-                        {/* Connecting line */}
                         <div className="absolute left-6 top-8 bottom-8 w-px bg-gradient-to-b from-emerald-500/50 via-teal-500/30 to-transparent hidden md:block" />
 
                         <div className="space-y-6">
@@ -435,7 +407,6 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ─── Pricing ──────────────────────────────────────────── */}
             <section id="pricing" className="py-24 px-4 border-t border-white/[0.06]">
                 <div className="mx-auto max-w-3xl">
                     <RevealSection className="text-center mb-12">
@@ -518,11 +489,9 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* ─── CTA ──────────────────────────────────────────────── */}
             <section className="py-28 px-4 border-t border-white/[0.06]">
                 <RevealSection className="mx-auto max-w-2xl text-center">
                     <div className="relative">
-                        {/* Background glow */}
                         <div className="absolute inset-0 bg-emerald-500/5 blur-3xl rounded-full scale-150" />
                         <div className="relative">
                             <h2 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
@@ -550,7 +519,6 @@ export default function Home() {
                 </RevealSection>
             </section>
 
-            {/* ─── Footer ───────────────────────────────────────────── */}
             <footer className="border-t border-white/[0.06] py-10 px-4">
                 <div className="mx-auto max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-2.5">
@@ -571,7 +539,7 @@ export default function Home() {
     );
 }
 
-// ─── Data ──────────────────────────────────────────────────────────────────
+
 
 const steps = [
     {

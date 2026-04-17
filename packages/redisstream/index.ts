@@ -34,7 +34,6 @@ export async function xReadGroup(
         { COUNT: 5 }
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const messages: MessageType[] | undefined = ((res as any)?.[0])?.messages;
     return messages;
 }
@@ -47,10 +46,6 @@ export async function xAckBulk(consumerGroup: string, eventIds: string[]) {
     await Promise.all(eventIds.map(eventId => xAck(consumerGroup, eventId)));
 }
 
-/**
- * Creates the stream (if it doesn't exist) and the consumer group.
- * Safe to call multiple times — BUSYGROUP means the group already exists.
- */
 export async function ensureConsumerGroup(consumerGroup: string) {
     try {
         await client.xGroupCreate(STREAM_NAME, consumerGroup, "0", { MKSTREAM: true });
@@ -58,8 +53,6 @@ export async function ensureConsumerGroup(consumerGroup: string) {
         if (!err?.message?.includes("BUSYGROUP")) throw err;
     }
 }
-
-// ─── Key/value helpers (used by worker + pusher for durable state) ─────────────
 
 export async function kvSet(key: string, value: string, ttlSeconds?: number) {
     if (ttlSeconds !== undefined) {

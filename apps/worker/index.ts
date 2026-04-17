@@ -13,13 +13,10 @@ if (!WORKER_ID) throw new Error("WORKER_ID not provided");
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-const ALERT_COOLDOWN_SEC = 10 * 60; // 10 minutes
+const ALERT_COOLDOWN_SEC = 10 * 60;
 
-// SSL check cooldown: websiteId → last SSL check timestamp
 const sslLastChecked = new Map<string, number>();
-const SSL_CHECK_INTERVAL_MS = 20 * 60 * 60 * 1000; // 20 hours
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const SSL_CHECK_INTERVAL_MS = 20 * 60 * 60 * 1000;
 
 async function isInMaintenanceWindow(websiteId: string): Promise<boolean> {
     const now = new Date();
@@ -44,7 +41,7 @@ async function sendSslExpiryAlert(websiteId: string, websiteUrl: string, display
     const cooldownKey = `ssl_alert_cooldown:${websiteId}`;
     const coolingDown = await kvGet(cooldownKey);
     if (coolingDown) return;
-    await kvSet(cooldownKey, "1", 24 * 60 * 60); // 24h cooldown for SSL alerts
+    await kvSet(cooldownKey, "1", 24 * 60 * 60);
 
     await resend.emails.send({
         from: process.env.RESEND_FROM ?? "BetterUptime <onboarding@resend.dev>",
@@ -126,7 +123,6 @@ async function triggerAlerts(
 }
 
 function checkKeyword(body: string, keywordMonitor: string): boolean {
-    // Format: "present:keyword" or "absent:keyword"
     const [mode, ...rest] = keywordMonitor.split(":");
     const keyword = rest.join(":");
     if (mode === "present") return body.includes(keyword);
@@ -147,8 +143,6 @@ async function getSslExpiry(hostname: string): Promise<Date | null> {
     });
 }
 
-// ─── Main fetch ───────────────────────────────────────────────────────────────
-
 async function fetchWebsite(websiteId: string) {
     const website = await prismaClient.website.findUnique({
         where: { id: websiteId },
@@ -164,7 +158,7 @@ async function fetchWebsite(websiteId: string) {
     try {
         const response = await axios.get(website.url, {
             timeout: 10000,
-            maxContentLength: 5 * 1024 * 1024, // 5 MB cap
+            maxContentLength: 5 * 1024 * 1024,
             maxBodyLength: 5 * 1024 * 1024,
         });
         responseBody = typeof response.data === "string" ? response.data : JSON.stringify(response.data);
@@ -172,7 +166,6 @@ async function fetchWebsite(websiteId: string) {
         status = "Down";
     }
 
-    // Keyword check (only if HTTP succeeded)
     if (status === "Up" && website.keyword_monitor) {
         const keywordOk = checkKeyword(responseBody, website.keyword_monitor);
         if (!keywordOk) status = "keyword_failed";
@@ -180,30 +173,25 @@ async function fetchWebsite(websiteId: string) {
 
     const response_time_ms = Date.now() - startTime;
 
-    // Get previous status
     const lastTick = await prismaClient.website_tick.findFirst({
         where: { website_id: websiteId },
         orderBy: { createdAt: "desc" },
     });
     const prevStatus = lastTick?.status ?? null;
 
-    // Save tick
     await prismaClient.website_tick.create({
         data: { response_time_ms, status, region_id: REGION_ID, website_id: websiteId }
     });
 
-    // Incident + alert logic on status transitions
     const wasUp = prevStatus === "Up" || prevStatus === null;
     const isDown = status === "Down" || status === "keyword_failed";
 
     if (wasUp && isDown) {
-        // Site just went down — open incident
         const incident = await prismaClient.incident.create({
             data: { website_id: websiteId, cause: status === "keyword_failed" ? "Keyword check failed" : "HTTP check failed" }
         });
         await triggerAlerts(websiteId, website.url, displayName, "Down", incident.id);
     } else if ((prevStatus === "Down" || prevStatus === "keyword_failed") && status === "Up") {
-        // Site recovered — close open incident
         const openIncident = await prismaClient.incident.findFirst({
             where: { website_id: websiteId, resolved_at: null },
             orderBy: { started_at: "desc" }
@@ -217,7 +205,6 @@ async function fetchWebsite(websiteId: string) {
         await triggerAlerts(websiteId, website.url, displayName, "Up");
     }
 
-    // SSL check (once per 20h, only for https sites)
     if (website.ssl_monitor_enabled && website.url.startsWith("https://")) {
         const lastSslCheck = sslLastChecked.get(websiteId) ?? 0;
         const shouldCheckSsl = Date.now() - lastSslCheck > SSL_CHECK_INTERVAL_MS;
@@ -231,20 +218,16 @@ async function fetchWebsite(websiteId: string) {
                         where: { id: websiteId },
                         data: { ssl_expires_at: expiry }
                     });
-                    // Alert if expiring within 14 days
                     const daysUntilExpiry = Math.ceil((expiry.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
                     if (daysUntilExpiry < 14) {
                         await sendSslExpiryAlert(websiteId, website.url, displayName, daysUntilExpiry);
                     }
                 }
             } catch {
-                // Non-fatal — SSL check failure doesn't affect uptime status
             }
         }
     }
 }
-
-// ─── Main loop ────────────────────────────────────────────────────────────────
 
 async function main() {
     await ensureConsumerGroup(REGION_ID);

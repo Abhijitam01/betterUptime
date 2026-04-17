@@ -98,7 +98,6 @@ export default function Dashboard() {
 
             <main className="mx-auto max-w-4xl px-4 py-8 space-y-6">
 
-                {/* Summary stats */}
                 {total > 0 && (
                     <div className="glass rounded-2xl overflow-hidden">
                         <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-white/[0.06]">
@@ -137,7 +136,6 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                {/* Status banner */}
                 {total > 0 && (
                     <div className={`rounded-2xl px-5 py-4 flex items-center justify-between ${allUp ? "bg-emerald-500/10 border border-emerald-500/25" : downCount > 0 ? "bg-red-500/10 border border-red-500/25" : "bg-white/[0.04] border border-white/[0.08]"}`}>
                         <div className="flex items-center gap-3">
@@ -163,7 +161,6 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                {/* Add website form */}
                 <div>
                     <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-2">
                         <input
@@ -187,7 +184,6 @@ export default function Dashboard() {
                     )}
                 </div>
 
-                {/* Website list */}
                 <div>
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-sm font-medium text-slate-400">{total > 0 ? `${total} monitor${total !== 1 ? "s" : ""}` : "No monitors yet"}</span>

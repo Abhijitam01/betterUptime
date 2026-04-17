@@ -100,9 +100,8 @@ describe("Can fetch website", () => {
                     Authorization: token2
                 }
             })
-            expect(false).toBe(true); // should not reach here
+            expect(false).toBe(true);
         } catch {
-            // expected: 404 when user2 tries to access user1's website
         }
     })
 })

@@ -34,7 +34,6 @@ export default function SignUp() {
 
     return (
         <div className="min-h-screen bg-[#080c18] flex items-center justify-center px-4">
-            {/* Subtle grid */}
             <div
                 className="fixed inset-0 pointer-events-none"
                 style={{
@@ -48,7 +47,6 @@ export default function SignUp() {
             <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_60%_at_50%_50%,transparent_30%,#080c18_80%)]" />
 
             <div className="relative z-10 w-full max-w-sm">
-                {/* Logo */}
                 <div className="flex items-center justify-center gap-2 mb-8">
                     <span className="relative flex h-2.5 w-2.5">
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />

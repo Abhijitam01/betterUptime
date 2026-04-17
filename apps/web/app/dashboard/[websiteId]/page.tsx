@@ -15,8 +15,6 @@ import { StatusBadge } from "../../../components/StatusBadge";
 import { ResponseTimeChart } from "../../../components/ResponseTimeChart";
 import { UptimeBars } from "../../../components/UptimeBars";
 
-// ─── helpers ──────────────────────────────────────────────────────────────────
-
 function uptimePercent(ticks: Tick[]): string {
     if (ticks.length === 0) return "—";
     const up = ticks.filter(t => t.status === "Up").length;
@@ -59,8 +57,6 @@ const CHECK_INTERVALS = [
     { value: 600, label: "10 minutes" },
 ];
 
-// ─── sub-components ───────────────────────────────────────────────────────────
-
 function StatCard({ label, value, sub, valueClass = "" }: {
     label: string; value: string; sub: string; valueClass?: string;
 }) {
@@ -89,8 +85,6 @@ function SslBadge({ expiresAt }: { expiresAt: string | null }) {
         </span>
     );
 }
-
-// ─── sections ────────────────────────────────────────────────────────────────
 
 function DisplayNameEditor({ website, onSaved }: { website: Website; onSaved: () => void }) {
     const [editing, setEditing] = useState(false);
@@ -640,8 +634,6 @@ function HistoryTable({ ticks }: { ticks: Tick[] }) {
     );
 }
 
-// ─── page ─────────────────────────────────────────────────────────────────────
-
 export default function WebsiteDetail() {
     const params = useParams();
     const router = useRouter();
@@ -703,7 +695,6 @@ export default function WebsiteDetail() {
 
                 {!loading && website && (
                     <>
-                        {/* Identity card */}
                         <div className="glass rounded-2xl p-5">
                             <div className="flex items-start justify-between gap-4">
                                 <div className="min-w-0 flex-1">
@@ -730,7 +721,6 @@ export default function WebsiteDetail() {
                             </div>
                         </div>
 
-                        {/* Stats row */}
                         <div className="grid grid-cols-3 gap-px bg-white/[0.06] rounded-xl overflow-hidden">
                             <div className="bg-[var(--theme-bg)] px-4 py-3">
                                 <p className="text-[11px] text-slate-500 mb-0.5">Uptime</p>
@@ -757,7 +747,6 @@ export default function WebsiteDetail() {
                             </div>
                         </div>
 
-                        {/* Tab nav */}
                         <div className="flex gap-0 border-b border-white/[0.06] -mb-px">
                             {(["overview", "settings"] as const).map(tab => (
                                 <button
@@ -774,12 +763,10 @@ export default function WebsiteDetail() {
                             ))}
                         </div>
 
-                        {/* Overview tab */}
                         {activeTab === "overview" && (
                             <>
                                 {ticks && ticks.length > 0 && (
                                     <>
-                                        {/* Uptime bars */}
                                         <div className="glass rounded-2xl px-5 py-4 space-y-2">
                                             <div className="flex items-center justify-between">
                                                 <span className="text-xs font-medium text-slate-400">Last 50 checks</span>
@@ -788,7 +775,6 @@ export default function WebsiteDetail() {
                                             <UptimeBars ticks={ticks} />
                                         </div>
 
-                                        {/* Response time chart */}
                                         <div className="glass rounded-2xl p-5">
                                             <h2 className="text-sm font-medium text-slate-400 mb-4">Response time</h2>
                                             <ResponseTimeChart ticks={ticks} />
@@ -811,7 +797,6 @@ export default function WebsiteDetail() {
                             </>
                         )}
 
-                        {/* Settings tab */}
                         {activeTab === "settings" && (
                             <div className="space-y-5">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

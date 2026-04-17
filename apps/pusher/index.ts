@@ -34,7 +34,6 @@ async function main() {
     }
 }
 
-// Run every 30s (minimum supported interval is 30s)
 setInterval(() => { main().catch(console.error); }, 30 * 1000);
 
 main().catch(console.error);

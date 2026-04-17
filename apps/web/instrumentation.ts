@@ -1,11 +1,5 @@
 export async function register() {
-    // Node.js v22+ exposes a `localStorage` global when --localstorage-file is
-    // passed to the process. Next.js Turbopack passes that flag without a valid
-    // path, leaving a broken Storage object whose methods throw at runtime.
-    // Next.js's own HMR overlay code calls localStorage.getItem on the server,
-    // which triggers the TypeError. Replace the broken global with a no-op
-    // in-memory implementation so server-side rendering never crashes.
-    if (typeof window !== "undefined") return; // only in server/Node context
+    if (typeof window !== "undefined") return;
 
     const needsPolyfill =
         typeof localStorage === "undefined" ||
@@ -31,6 +25,5 @@ export async function register() {
             configurable: true,
         });
     } catch {
-        // If the property is non-configurable we can't override it — nothing to do.
     }
 }

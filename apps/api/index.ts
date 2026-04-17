@@ -33,8 +33,6 @@ function normalizeUrl(raw: string): string {
 
 const AddWebsiteInput = z.object({ url: z.string().url() });
 
-// ─── Websites ────────────────────────────────────────────────────────────────
-
 app.post("/website", authMiddleware, async (req, res) => {
     const parsed = AddWebsiteInput.safeParse({
         url: typeof req.body.url === "string" ? normalizeUrl(req.body.url) : req.body.url,
@@ -153,10 +151,6 @@ app.get("/status/:websiteId/history", authMiddleware, async (req, res) => {
     res.json(ticks);
 });
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
-
-// ─── User profile ─────────────────────────────────────────────────────────────
-
 app.get("/user/me", authMiddleware, async (req, res) => {
     const user = await prismaClient.user.findUnique({
         where: { id: req.userId! },
@@ -183,8 +177,6 @@ app.patch("/user/me", authMiddleware, async (req, res) => {
     }
 });
 
-// ─── Website update (display name, check interval, keyword monitor) ───────────
-
 const UpdateWebsiteInput = z.object({
     display_name: z.string().max(100).nullable().optional(),
     check_interval_sec: z.coerce.number().int().refine(
@@ -209,8 +201,6 @@ app.patch("/website/:id", authMiddleware, async (req, res) => {
     });
     res.json(updated);
 });
-
-// ─── Alert settings ───────────────────────────────────────────────────────────
 
 const AlertSettingInput = z.object({
     email_enabled: z.boolean().optional(),
@@ -248,8 +238,6 @@ app.post("/website/:id/alerts", authMiddleware, async (req, res) => {
     res.json(setting);
 });
 
-// ─── Incidents ────────────────────────────────────────────────────────────────
-
 app.get("/website/:id/incidents", authMiddleware, async (req, res) => {
     const website = await prismaClient.website.findFirst({
         where: { id: req.params.id, user_id: req.userId! }
@@ -263,8 +251,6 @@ app.get("/website/:id/incidents", authMiddleware, async (req, res) => {
     });
     res.json(incidents);
 });
-
-// ─── Maintenance windows ──────────────────────────────────────────────────────
 
 const ALLOWED_INTERVALS = [30, 60, 120, 300, 600] as const;
 
@@ -322,8 +308,6 @@ app.delete("/maintenance/:windowId", authMiddleware, async (req, res) => {
     res.json({ message: "Deleted" });
 });
 
-// ─── Public status page ───────────────────────────────────────────────────────
-
 const { nanoid } = await import("nanoid");
 
 app.post("/website/:id/status-page", authMiddleware, async (req, res) => {
@@ -372,8 +356,6 @@ app.get("/public/status/:slug", async (req, res) => {
         incidents: website.incidents,
     });
 });
-
-// ─── Import ───────────────────────────────────────────────────────────────────
 
 const CsvImportInput = z.object({
     rows: z.array(z.object({
@@ -456,7 +438,7 @@ app.post("/import/uptimerobot", authMiddleware, async (req, res) => {
 });
 
 const authLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
+    windowMs: 15 * 60 * 1000,
     limit: 20,
     message: { message: "Too many attempts, please try again later" },
     standardHeaders: true,
@@ -530,7 +512,6 @@ app.post("/user/refresh", async (req, res) => {
         return;
     }
 
-    // Rotate: revoke old, issue new
     await prismaClient.refresh_token.update({ where: { id: stored.id }, data: { revoked: true } });
     const newRefresh = await prismaClient.refresh_token.create({
         data: {
