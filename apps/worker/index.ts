@@ -44,9 +44,9 @@ async function sendSslExpiryAlert(websiteId: string, websiteUrl: string, display
     await kvSet(cooldownKey, "1", 24 * 60 * 60);
 
     await resend.emails.send({
-        from: process.env.RESEND_FROM ?? "BetterUptime <onboarding@resend.dev>",
+        from: process.env.RESEND_FROM ?? "PingGod <onboarding@resend.dev>",
         to: user.email,
-        subject: `[BetterUptime] SSL certificate for ${displayName} expires in ${daysLeft} days`,
+        subject: `[PingGod] SSL certificate for ${displayName} expires in ${daysLeft} days`,
         text: `The SSL certificate for ${displayName} (${websiteUrl}) will expire in ${daysLeft} day${daysLeft !== 1 ? "s" : ""}. Please renew it to avoid browser warnings.`,
     }).catch(err => console.error("SSL alert email failed:", err));
 }
@@ -54,14 +54,14 @@ async function sendSslExpiryAlert(websiteId: string, websiteUrl: string, display
 async function sendEmailAlert(to: string, websiteUrl: string, displayName: string, status: "Down" | "Up") {
     if (!resend) return;
     const subject = status === "Down"
-        ? `[BetterUptime] ${displayName} is DOWN`
-        : `[BetterUptime] ${displayName} is back UP`;
+        ? `[PingGod] ${displayName} is DOWN`
+        : `[PingGod] ${displayName} is back UP`;
     const text = status === "Down"
         ? `Your website ${displayName} (${websiteUrl}) is not responding. We'll notify you when it recovers.`
         : `Your website ${displayName} (${websiteUrl}) has recovered and is now responding normally.`;
 
     await resend.emails.send({
-        from: process.env.RESEND_FROM ?? "BetterUptime <onboarding@resend.dev>",
+        from: process.env.RESEND_FROM ?? "PingGod <onboarding@resend.dev>",
         to,
         subject,
         text,

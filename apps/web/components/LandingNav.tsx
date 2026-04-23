@@ -28,7 +28,7 @@ export function LandingNav() {
                             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                         </span>
                     </div>
-                    <span className="text-white font-semibold tracking-tight">BetterUptime</span>
+                    <span className="text-white font-semibold tracking-tight">PingGod</span>
                 </div>
 
                 <nav className="hidden md:flex items-center gap-1">

@@ -48,7 +48,7 @@ function MockDashboard() {
                     </div>
                     <div className="flex-1 flex justify-center">
                         <span className="text-[11px] text-slate-500 font-mono bg-white/[0.04] rounded-md px-3 py-0.5">
-                            betteruptime.app/dashboard
+                            pinggod.app/dashboard
                         </span>
                     </div>
                 </div>
@@ -250,7 +250,7 @@ export default function Home() {
                     </h1>
 
                     <p className="animate-fade-up-delay-2 text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                        BetterUptime monitors your websites every minute, tracks response times across
+                        PingGod monitors your websites every minute, tracks response times across
                         multiple regions, and sends instant alerts — so outages never catch you off guard.
                     </p>
 
@@ -525,12 +525,14 @@ export default function Home() {
                         <div className="relative flex h-6 w-6 items-center justify-center rounded-md bg-emerald-500/10 border border-emerald-500/20">
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                         </div>
-                        <span className="text-sm font-semibold text-slate-400">BetterUptime</span>
+                        <span className="text-sm font-semibold text-slate-400">PingGod</span>
                     </div>
                     <div className="flex items-center gap-6 text-xs text-slate-600">
                         <a href="#features" className="hover:text-slate-400 transition-colors">Features</a>
                         <a href="#pricing" className="hover:text-slate-400 transition-colors">Pricing</a>
                         <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">GitHub</a>
+                        <a href="mailto:abhijitamdubey31@gmail.com" className="hover:text-slate-400 transition-colors">Contact</a>
+                        <a href="https://twitter.com/abhijitam_tw" target="_blank" rel="noopener noreferrer" className="hover:text-slate-400 transition-colors">Twitter</a>
                     </div>
                     <p className="text-xs text-slate-700">Open source uptime monitoring built with Next.js &amp; Bun</p>
                 </div>

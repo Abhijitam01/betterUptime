@@ -52,7 +52,7 @@ export default function SignUp() {
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                     </span>
-                    <span className="text-white font-semibold tracking-tight">BetterUptime</span>
+                    <span className="text-white font-semibold tracking-tight">PingGod</span>
                 </div>
 
                 <div className="glass rounded-2xl p-7">

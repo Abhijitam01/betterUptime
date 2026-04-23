@@ -31,7 +31,7 @@ export function Navbar() {
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
-                    <span className="font-semibold text-white tracking-tight text-sm">BetterUptime</span>
+                    <span className="font-semibold text-white tracking-tight text-sm">PingGod</span>
                 </Link>
 
                 <nav className="flex items-center gap-1">

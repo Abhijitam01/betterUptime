@@ -13,7 +13,7 @@ type MessageType = {
     };
 };
 
-const STREAM_NAME = "betteruptime:website";
+const STREAM_NAME = "pinggod:website";
 
 async function xAdd({ url, id }: WebsiteEvent) {
     await client.xAdd(STREAM_NAME, "*", { url, id });

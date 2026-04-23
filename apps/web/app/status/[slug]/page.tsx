@@ -75,7 +75,7 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
-                    <span className="font-semibold text-white tracking-tight text-sm">BetterUptime</span>
+                    <span className="font-semibold text-white tracking-tight text-sm">PingGod</span>
                 </div>
             </header>
 
@@ -136,7 +136,7 @@ export default async function StatusPage({ params }: { params: Promise<{ slug: s
                 )}
 
                 <p className="text-center text-xs text-slate-600">
-                    Powered by <span className="font-medium">BetterUptime</span> — refreshes every 30s
+                    Powered by <span className="font-medium">PingGod</span> — refreshes every 30s
                 </p>
             </main>
         </div>

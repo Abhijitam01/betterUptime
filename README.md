@@ -1,4 +1,4 @@
-# BetterUptime
+# PingGod
 
 A self-hosted website uptime monitoring platform. Add URLs to watch, get alerted when they go down, track response times, manage incidents, and share public status pages — all in one monorepo.
 
@@ -54,7 +54,7 @@ flowchart LR
 ## Monorepo structure
 
 ```
-betteruptime/
+pinggod/
 ├── apps/
 │   ├── api/        # Express REST API (auth, websites, incidents, alerts)
 │   ├── pusher/     # Scheduler — enqueues websites into Redis stream
@@ -114,13 +114,13 @@ cp packages/store/.env.example packages/store/.env
 Edit `packages/store/.env`:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/betteruptime
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/pinggod
 ```
 
 Create `apps/api/.env`:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/betteruptime
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/pinggod
 JWT_SECRET=your-super-secret-key
 CORS_ORIGIN=http://localhost:3000
 PORT=3001
@@ -129,7 +129,7 @@ PORT=3001
 Create `apps/worker/.env`:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/betteruptime
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/pinggod
 REDIS_URL=redis://localhost:6379
 REGION_ID=us-east-1
 WORKER_ID=worker-1
@@ -139,7 +139,7 @@ RESEND_API_KEY=re_...        # optional — needed for email alerts
 Create `apps/pusher/.env`:
 
 ```env
-DATABASE_URL=postgres://postgres:postgres@localhost:5432/betteruptime
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/pinggod
 REDIS_URL=redis://localhost:6379
 ```
 
