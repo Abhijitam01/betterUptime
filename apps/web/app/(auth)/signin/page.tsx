@@ -33,18 +33,18 @@ export default function SignIn() {
     }
 
     return (
-        <div className="min-h-screen bg-[#080c18] flex items-center justify-center px-4">
+        <div className="min-h-screen bg-[var(--theme-bg)] flex items-center justify-center px-4">
             <div
                 className="fixed inset-0 pointer-events-none"
                 style={{
                     backgroundImage: `
-                        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
+                        linear-gradient(var(--theme-divider) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--theme-divider) 1px, transparent 1px)
                     `,
                     backgroundSize: "60px 60px",
                 }}
             />
-            <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_70%_60%_at_50%_50%,transparent_30%,#080c18_80%)]" />
+            <div className="fixed inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 30%, var(--theme-bg) 80%)" }} />
 
             <div className="relative z-10 w-full max-w-sm">
                 <div className="flex items-center justify-center gap-2 mb-8">
@@ -52,12 +52,12 @@ export default function SignIn() {
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
                     </span>
-                    <span className="text-white font-semibold tracking-tight">PingGod</span>
+                    <span className="text-[var(--theme-text-primary)] font-semibold tracking-tight">PingGod</span>
                 </div>
 
                 <div className="glass rounded-2xl p-7">
-                    <h1 className="text-xl font-bold text-white mb-1">Welcome back</h1>
-                    <p className="text-sm text-slate-400 mb-6">Sign in to your account</p>
+                    <h1 className="text-xl font-bold text-[var(--theme-text-primary)] mb-1">Welcome back</h1>
+                    <p className="text-sm text-[var(--theme-text-muted)] mb-6">Sign in to your account</p>
 
                     {error && (
                         <div className="mb-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
@@ -67,7 +67,7 @@ export default function SignIn() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label htmlFor="username" className="block text-sm font-medium text-slate-300 mb-1.5">
+                            <label htmlFor="username" className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-1.5">
                                 Username
                             </label>
                             <input
@@ -76,12 +76,12 @@ export default function SignIn() {
                                 type="text"
                                 required
                                 autoComplete="username"
-                                className="w-full rounded-xl bg-white/[0.05] border border-white/10 text-white placeholder-slate-500 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/15 transition"
+                                className="dark-input"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-1.5">
+                            <label htmlFor="password" className="block text-sm font-medium text-[var(--theme-text-secondary)] mb-1.5">
                                 Password
                             </label>
                             <input
@@ -90,7 +90,7 @@ export default function SignIn() {
                                 type="password"
                                 required
                                 autoComplete="current-password"
-                                className="w-full rounded-xl bg-white/[0.05] border border-white/10 text-white placeholder-slate-500 px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/15 transition"
+                                className="dark-input"
                             />
                         </div>
 
@@ -104,15 +104,15 @@ export default function SignIn() {
                     </form>
                 </div>
 
-                <p className="text-center text-sm text-slate-500 mt-5">
+                <p className="text-center text-sm text-[var(--theme-text-muted)] mt-5">
                     No account?{" "}
-                    <Link href="/signup" className="text-emerald-400 hover:text-emerald-300 transition-colors">
+                    <Link href="/signup" className="text-emerald-500 hover:text-emerald-400 transition-colors">
                         Sign up free
                     </Link>
                 </p>
 
                 <div className="text-center mt-4">
-                    <Link href="/" className="text-xs text-slate-600 hover:text-slate-400 transition-colors">
+                    <Link href="/" className="text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text-secondary)] transition-colors">
                         ← Back to home
                     </Link>
                 </div>

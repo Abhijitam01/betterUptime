@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import { prismaClient } from "store/client";
 import { AuthInput } from "./types";
 import { authMiddleware } from "./middleware";
+import { xAddBulk } from "redisstream/client";
 
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET env var is required");
 
@@ -55,6 +56,8 @@ app.post("/website", authMiddleware, async (req, res) => {
             user_id: req.userId!
         }
     });
+
+    xAddBulk([{ id: website.id, url: website.url }]).catch(() => {});
 
     res.json({ id: website.id });
 });
@@ -399,6 +402,14 @@ app.post("/import/csv", authMiddleware, async (req, res) => {
         }))
     });
 
+    if (toCreate.length > 0) {
+        const created = await prismaClient.website.findMany({
+            where: { user_id: req.userId!, url: { in: toCreate.map(r => r.url) } },
+            select: { id: true, url: true }
+        });
+        xAddBulk(created).catch(() => {});
+    }
+
     res.json({ imported: toCreate.length, skipped: parsed.data.rows.length - toCreate.length });
 });
 
@@ -439,6 +450,14 @@ app.post("/import/uptimerobot", authMiddleware, async (req, res) => {
             time_added: new Date(),
         }))
     });
+
+    if (toCreate.length > 0) {
+        const created = await prismaClient.website.findMany({
+            where: { user_id: req.userId!, url: { in: toCreate.map(m => m.url) } },
+            select: { id: true, url: true }
+        });
+        xAddBulk(created).catch(() => {});
+    }
 
     res.json({ imported: toCreate.length, skipped: monitors.length - toCreate.length });
 });

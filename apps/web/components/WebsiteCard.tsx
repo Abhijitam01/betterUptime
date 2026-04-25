@@ -49,7 +49,7 @@ function MiniSparkline({ websiteId }: { websiteId: string }) {
                         return (
                             <div
                                 key={i}
-                                className="flex-1 rounded-sm bg-white/[0.08] opacity-40"
+                                className="flex-1 rounded-sm bg-[var(--theme-divider)] opacity-60"
                                 style={{ height: "25%" }}
                             />
                         );
@@ -74,17 +74,17 @@ function MiniSparkline({ websiteId }: { websiteId: string }) {
 
             <div className="flex flex-col items-end gap-0.5 min-w-[52px]">
                 {latestResponseMs !== undefined && (
-                    <span className="text-xs font-mono font-semibold text-slate-200 leading-none">
+                    <span className="text-xs font-mono font-semibold text-[var(--theme-text-secondary)] leading-none">
                         {latestResponseMs}ms
                     </span>
                 )}
                 {uptime !== null && (
-                    <span className="text-xs font-mono text-emerald-400 leading-none">
+                    <span className="text-xs font-mono text-emerald-500 leading-none">
                         {uptime}%
                     </span>
                 )}
                 {!ticks && (
-                    <span className="text-[10px] text-slate-600 leading-none">loading…</span>
+                    <span className="text-[10px] text-[var(--theme-text-muted)] leading-none">loading…</span>
                 )}
             </div>
         </div>
@@ -108,7 +108,7 @@ export function WebsiteCard({ website, onDelete, deleting }: Props) {
     return (
         <Link
             href={`/dashboard/${website.id}`}
-            className="group glass rounded-2xl flex items-stretch overflow-hidden hover:bg-white/[0.05] transition-all cursor-pointer"
+            className="group glass rounded-2xl flex items-stretch overflow-hidden hover:bg-[var(--theme-card-hover)] transition-all cursor-pointer"
         >
             <div className={`w-1 shrink-0 ${stripeClass}`} />
 
@@ -116,17 +116,17 @@ export function WebsiteCard({ website, onDelete, deleting }: Props) {
                 <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2.5 flex-wrap">
                         <StatusBadge status={status} />
-                        <span className="font-medium text-white truncate text-sm group-hover:text-emerald-400 transition-colors">
+                        <span className="font-medium text-[var(--theme-text-primary)] truncate text-sm group-hover:text-emerald-500 transition-colors">
                             {website.display_name || website.url}
                         </span>
                     </div>
                     {website.display_name && (
-                        <p className="mt-0.5 text-xs text-slate-500 truncate">{website.url}</p>
+                        <p className="mt-0.5 text-xs text-[var(--theme-text-muted)] truncate">{website.url}</p>
                     )}
                     {website.latestTick ? (
-                        <p className="mt-1 text-xs text-slate-500">Checked {timeAgo(website.latestTick.createdAt)}</p>
+                        <p className="mt-1 text-xs text-[var(--theme-text-muted)]">Checked {timeAgo(website.latestTick.createdAt)}</p>
                     ) : (
-                        <p className="mt-1 text-xs text-slate-500">No checks yet</p>
+                        <p className="mt-1 text-xs text-[var(--theme-text-muted)]">No checks yet — checking soon…</p>
                     )}
                 </div>
 

@@ -3,7 +3,7 @@ import type { WebsiteStatus } from "../lib/api";
 const config: Record<WebsiteStatus, { pill: string; dot: string; pulse: boolean; label: string }> = {
     Up:              { pill: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",  dot: "bg-emerald-500",  pulse: true,  label: "Up" },
     Down:            { pill: "bg-red-500/15 text-red-400 border-red-500/25",              dot: "bg-red-500",      pulse: false, label: "Down" },
-    Unknown:         { pill: "bg-white/[0.06] text-slate-400 border-white/[0.08]",        dot: "bg-slate-400",    pulse: false, label: "Unknown" },
+    Unknown:         { pill: "bg-[var(--theme-card)] text-[var(--theme-text-muted)] border-[var(--theme-card-border)]", dot: "bg-slate-400", pulse: false, label: "Unknown" },
     keyword_failed:  { pill: "bg-violet-500/15 text-violet-400 border-violet-500/25",     dot: "bg-violet-500",   pulse: false, label: "Keyword failed" },
 };
 

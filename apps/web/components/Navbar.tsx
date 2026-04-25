@@ -19,19 +19,19 @@ export function Navbar() {
         return `text-xs font-medium transition-colors px-3 py-1.5 rounded-lg ${
             active
                 ? "bg-emerald-500/15 text-emerald-400"
-                : "text-slate-400 hover:text-white hover:bg-white/[0.06]"
+                : "text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] hover:bg-[var(--theme-hover-bg,rgba(255,255,255,0.06))]"
         }`;
     }
 
     return (
-        <header className="sticky top-0 z-40 border-b border-white/[0.06] bg-[var(--theme-bg)]/90 backdrop-blur-md">
+        <header className="sticky top-0 z-40 border-b border-[var(--theme-divider)] backdrop-blur-md" style={{ background: "var(--theme-bg)" }}>
             <div className="mx-auto max-w-5xl px-4 h-14 flex items-center justify-between">
                 <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
                     <span className="relative flex h-2 w-2">
                         <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />
                         <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                     </span>
-                    <span className="font-semibold text-white tracking-tight text-sm">PingGod</span>
+                    <span className="font-semibold text-[var(--theme-text-primary)] tracking-tight text-sm">PingGod</span>
                 </Link>
 
                 <nav className="flex items-center gap-1">
@@ -47,7 +47,7 @@ export function Navbar() {
                     <ThemeToggle />
                     <button
                         onClick={signout}
-                        className="text-xs text-slate-500 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-white/[0.06]"
+                        className="text-xs text-[var(--theme-text-muted)] hover:text-[var(--theme-text-primary)] transition-colors px-3 py-1.5 rounded-lg hover:bg-[var(--theme-hover-bg,rgba(255,255,255,0.06))]"
                     >
                         Sign out
                     </button>

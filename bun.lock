@@ -23,6 +23,7 @@
         "express-rate-limit": "^8.3.2",
         "jsonwebtoken": "^9.0.2",
         "nanoid": "^5.1.9",
+        "redisstream": "*",
         "zod": "^3.25.67",
       },
       "devDependencies": {

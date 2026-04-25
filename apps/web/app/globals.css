@@ -25,28 +25,30 @@
   --theme-skeleton-to: rgba(255, 255, 255, 0.10);
 }
 
-/* Light theme override */
+/* Light theme override — warm cream */
 [data-theme="light"] {
-  --theme-bg: #f8fafc;
-  --theme-card: #ffffff;
-  --theme-card-border: #e2e8f0;
-  --theme-card-hover: #f1f5f9;
-  --theme-input-bg: #ffffff;
-  --theme-input-border: #cbd5e1;
-  --theme-text-primary: #0f172a;
-  --theme-text-secondary: #475569;
-  --theme-text-muted: #94a3b8;
-  --theme-divider: #e2e8f0;
-  --theme-skeleton-from: #f1f5f9;
-  --theme-skeleton-to: #e2e8f0;
+  --theme-bg: #fdf6ed;
+  --theme-card: #fffaf3;
+  --theme-card-border: #e5d4bc;
+  --theme-card-hover: #fdf0df;
+  --theme-input-bg: #fffaf3;
+  --theme-input-border: #d4bfa0;
+  --theme-text-primary: #1c1208;
+  --theme-text-secondary: #4a3520;
+  --theme-text-muted: #8a7055;
+  --theme-divider: #e5d4bc;
+  --theme-skeleton-from: #f5e8d5;
+  --theme-skeleton-to: #ecddd0;
+  --theme-nav-border: rgba(120, 80, 20, 0.12);
+  --theme-hover-bg: rgba(0, 0, 0, 0.04);
 }
 
-/* ─── Dark scrollbar ──────────────────────────────────────────────────────── */
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0a0e1a; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--theme-divider); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--theme-text-muted); }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 
@@ -198,6 +200,10 @@
   background: var(--theme-card);
   border: 1px solid var(--theme-card-border);
   backdrop-filter: blur(12px);
+}
+
+[data-theme="light"] .glass {
+  box-shadow: 0 1px 3px rgba(120, 80, 20, 0.06), 0 4px 16px rgba(120, 80, 20, 0.04);
 }
 
 .glass-hover:hover {

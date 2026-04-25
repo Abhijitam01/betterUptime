@@ -100,34 +100,34 @@ export default function Dashboard() {
 
                 {total > 0 && (
                     <div className="glass rounded-2xl overflow-hidden">
-                        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-white/[0.06]">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y sm:divide-y-0 divide-[var(--theme-divider)]">
                             <div className="px-5 py-4">
-                                <p className="text-xs text-slate-500 font-medium mb-1">Monitors</p>
-                                <p className="text-2xl font-bold text-white tabular-nums tracking-tight">{total}</p>
+                                <p className="text-xs text-[var(--theme-text-muted)] font-medium mb-1">Monitors</p>
+                                <p className="text-2xl font-bold text-[var(--theme-text-primary)] tabular-nums tracking-tight">{total}</p>
                             </div>
                             <div className="px-5 py-4">
-                                <p className="text-xs text-slate-500 font-medium mb-1">Status</p>
+                                <p className="text-xs text-[var(--theme-text-muted)] font-medium mb-1">Status</p>
                                 <div className="flex items-baseline gap-1.5">
-                                    <span className="text-2xl font-bold text-emerald-400 tabular-nums tracking-tight">{upCount}</span>
-                                    <span className="text-xs text-slate-500">up</span>
+                                    <span className="text-2xl font-bold text-emerald-500 tabular-nums tracking-tight">{upCount}</span>
+                                    <span className="text-xs text-[var(--theme-text-muted)]">up</span>
                                     {downCount > 0 && (
                                         <>
-                                            <span className="text-2xl font-bold text-red-400 tabular-nums tracking-tight">{downCount}</span>
-                                            <span className="text-xs text-slate-500">down</span>
+                                            <span className="text-2xl font-bold text-red-500 tabular-nums tracking-tight">{downCount}</span>
+                                            <span className="text-xs text-[var(--theme-text-muted)]">down</span>
                                         </>
                                     )}
                                 </div>
                             </div>
                             <div className="px-5 py-4">
-                                <p className="text-xs text-slate-500 font-medium mb-1">Avg response</p>
-                                <p className="text-2xl font-bold text-white tabular-nums tracking-tight font-mono">
+                                <p className="text-xs text-[var(--theme-text-muted)] font-medium mb-1">Avg response</p>
+                                <p className="text-2xl font-bold text-[var(--theme-text-primary)] tabular-nums tracking-tight font-mono">
                                     {avgResponseMs !== null ? `${avgResponseMs}ms` : "—"}
                                 </p>
                             </div>
                             <div className="px-5 py-4">
-                                <p className="text-xs text-slate-500 font-medium mb-1">Uptime</p>
+                                <p className="text-xs text-[var(--theme-text-muted)] font-medium mb-1">Uptime</p>
                                 <p className={`text-2xl font-bold tabular-nums tracking-tight font-mono ${
-                                    overallUptimePct === "100" ? "text-emerald-400" : downCount > 0 ? "text-red-400" : "text-white"
+                                    overallUptimePct === "100" ? "text-emerald-500" : downCount > 0 ? "text-red-500" : "text-[var(--theme-text-primary)]"
                                 }`}>
                                     {overallUptimePct !== null ? `${overallUptimePct}%` : "—"}
                                 </p>
@@ -137,26 +137,26 @@ export default function Dashboard() {
                 )}
 
                 {total > 0 && (
-                    <div className={`rounded-2xl px-5 py-4 flex items-center justify-between ${allUp ? "bg-emerald-500/10 border border-emerald-500/25" : downCount > 0 ? "bg-red-500/10 border border-red-500/25" : "bg-white/[0.04] border border-white/[0.08]"}`}>
+                    <div className={`rounded-2xl px-5 py-4 flex items-center justify-between ${allUp ? "bg-emerald-500/10 border border-emerald-500/25" : downCount > 0 ? "bg-red-500/10 border border-red-500/25" : "glass"}`}>
                         <div className="flex items-center gap-3">
                             <span className="relative flex h-3 w-3">
                                 {allUp && <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60 animate-ping" />}
-                                <span className={`relative inline-flex h-3 w-3 rounded-full ${allUp ? "bg-emerald-500" : downCount > 0 ? "bg-red-500" : "bg-slate-500"}`} />
+                                <span className={`relative inline-flex h-3 w-3 rounded-full ${allUp ? "bg-emerald-500" : downCount > 0 ? "bg-red-500" : "bg-[var(--theme-text-muted)]"}`} />
                             </span>
-                            <span className={`text-sm font-semibold ${allUp ? "text-emerald-400" : downCount > 0 ? "text-red-400" : "text-slate-300"}`}>
+                            <span className={`text-sm font-semibold ${allUp ? "text-emerald-500" : downCount > 0 ? "text-red-500" : "text-[var(--theme-text-secondary)]"}`}>
                                 {allUp ? "All systems operational" : downCount > 0 ? `${downCount} site${downCount > 1 ? "s" : ""} down` : "Checking…"}
                             </span>
                         </div>
                         <div className="flex items-center gap-3 text-xs">
-                            <span className="flex items-center gap-1.5 text-emerald-400">
+                            <span className="flex items-center gap-1.5 text-emerald-500">
                                 <span className="font-bold">{upCount}</span> up
                             </span>
                             {downCount > 0 && (
-                                <span className="flex items-center gap-1.5 text-red-400">
+                                <span className="flex items-center gap-1.5 text-red-500">
                                     <span className="font-bold">{downCount}</span> down
                                 </span>
                             )}
-                            <span className="text-slate-500">{total} total</span>
+                            <span className="text-[var(--theme-text-muted)]">{total} total</span>
                         </div>
                     </div>
                 )}
@@ -186,9 +186,9 @@ export default function Dashboard() {
 
                 <div>
                     <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-slate-400">{total > 0 ? `${total} monitor${total !== 1 ? "s" : ""}` : "No monitors yet"}</span>
+                        <span className="text-sm font-medium text-[var(--theme-text-secondary)]">{total > 0 ? `${total} monitor${total !== 1 ? "s" : ""}` : "No monitors yet"}</span>
                         {total > 0 && (
-                            <span className="text-xs text-slate-500">
+                            <span className="text-xs text-[var(--theme-text-muted)]">
                                 {lastRefreshed ? `Updated ${timeAgo(lastRefreshed.toISOString())}` : "Auto-refreshes every 10m"}
                             </span>
                         )}
@@ -219,8 +219,8 @@ export default function Dashboard() {
                                     <polyline points="12 6 12 12 16 14" />
                                 </svg>
                             </div>
-                            <p className="text-slate-300 text-sm font-medium">No websites monitored yet</p>
-                            <p className="text-slate-500 text-xs mt-1">Add a URL above to start watching it</p>
+                            <p className="text-[var(--theme-text-secondary)] text-sm font-medium">No websites monitored yet</p>
+                            <p className="text-[var(--theme-text-muted)] text-xs mt-1">Add a URL above to start watching it</p>
                         </div>
                     )}
 
