@@ -7,7 +7,14 @@ import rateLimit from "express-rate-limit";
 import { prismaClient } from "store/client";
 import { AuthInput } from "./types";
 import { authMiddleware } from "./middleware";
-import { xAddBulk } from "redisstream/client";
+
+async function pushToStream(websites: Array<{ id: string; url: string }>) {
+    if (!process.env.REDIS_URL) return;
+    try {
+        const { xAddBulk } = await import("redisstream/client");
+        await xAddBulk(websites);
+    } catch {}
+}
 
 if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET env var is required");
 
@@ -57,7 +64,7 @@ app.post("/website", authMiddleware, async (req, res) => {
         }
     });
 
-    xAddBulk([{ id: website.id, url: website.url }]).catch(() => {});
+    pushToStream([{ id: website.id, url: website.url }]);
 
     res.json({ id: website.id });
 });
@@ -407,7 +414,7 @@ app.post("/import/csv", authMiddleware, async (req, res) => {
             where: { user_id: req.userId!, url: { in: toCreate.map(r => r.url) } },
             select: { id: true, url: true }
         });
-        xAddBulk(created).catch(() => {});
+        pushToStream(created);
     }
 
     res.json({ imported: toCreate.length, skipped: parsed.data.rows.length - toCreate.length });
@@ -456,7 +463,7 @@ app.post("/import/uptimerobot", authMiddleware, async (req, res) => {
             where: { user_id: req.userId!, url: { in: toCreate.map(m => m.url) } },
             select: { id: true, url: true }
         });
-        xAddBulk(created).catch(() => {});
+        pushToStream(created);
     }
 
     res.json({ imported: toCreate.length, skipped: monitors.length - toCreate.length });
