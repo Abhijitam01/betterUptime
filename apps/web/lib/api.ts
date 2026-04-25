@@ -1,4 +1,4 @@
-import { getToken, setToken, setRefreshToken, getRefreshToken } from "./auth";
+import { getToken, setToken, setRefreshToken, getRefreshToken, clearToken } from "./auth";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
@@ -46,6 +46,8 @@ async function apiFetch<T>(path: string, init?: RequestInit, _retry = true): Pro
             isRefreshing = false;
         }
         if (newToken) return apiFetch<T>(path, init, false);
+        clearToken();
+        if (typeof window !== "undefined") window.location.href = "/signin";
     }
 
     if (!res.ok) {
