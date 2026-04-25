@@ -13,11 +13,17 @@ if (!process.env.JWT_SECRET) throw new Error("JWT_SECRET env var is required");
 const app = express();
 app.use(express.json());
 
-const ALLOWED_ORIGIN = process.env.CORS_ORIGIN ?? "http://localhost:3000";
+const ALLOWED_ORIGINS = new Set(
+    (process.env.CORS_ORIGIN ?? "http://localhost:3000").split(",").map(o => o.trim())
+);
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", ALLOWED_ORIGIN);
+    const origin = req.headers.origin;
+    if (origin && ALLOWED_ORIGINS.has(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+    }
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Vary", "Origin");
     if (req.method === "OPTIONS") {
         res.sendStatus(204);
         return;
