@@ -147,7 +147,10 @@ async function getSslExpiry(hostname: string): Promise<Date | null> {
     });
 }
 
-async function fetchWebsite(websiteId: string) {
+async function fetchWebsite(
+    websiteId: string,
+    scheduleRecheck: (id: string, url: string, delayMs: number) => void,
+) {
     const website = await prismaClient.website.findUnique({
         where: { id: websiteId },
         include: { user: { select: { email: true } } }
@@ -231,14 +234,42 @@ async function fetchWebsite(websiteId: string) {
             }
         }
     }
+
+    scheduleRecheck(website.id, website.url, website.check_interval_sec * 1000);
 }
 
 async function main() {
-    const { xAckBulk, xReadGroup, ensureConsumerGroup, kvGet: _kvGet, kvSet: _kvSet } = await import("redisstream/client");
+    const { xAckBulk, xAddBulk, xReadGroup, ensureConsumerGroup, kvGet: _kvGet, kvSet: _kvSet } = await import("redisstream/client");
     kvGet = _kvGet;
     kvSet = _kvSet;
 
     await ensureConsumerGroup(REGION_ID);
+
+    function scheduleRecheck(id: string, url: string, delayMs: number) {
+        setTimeout(async () => {
+            try {
+                await xAddBulk([{ id, url }]);
+            } catch (err) {
+                console.error(`Re-enqueue failed for ${id}:`, err);
+            }
+        }, delayMs);
+    }
+
+    // Startup recovery: re-enqueue websites overdue for a check
+    const allWebsites = await prismaClient.website.findMany({
+        select: { id: true, url: true, check_interval_sec: true },
+    });
+    for (const w of allWebsites) {
+        const lastTick = await prismaClient.website_tick.findFirst({
+            where: { website_id: w.id },
+            orderBy: { createdAt: "desc" },
+            select: { createdAt: true },
+        });
+        const elapsed = Date.now() - (lastTick?.createdAt?.getTime() ?? 0);
+        if (elapsed >= w.check_interval_sec * 1000) {
+            await xAddBulk([{ id: w.id, url: w.url }]);
+        }
+    }
 
     while (true) {
         const response = await xReadGroup(REGION_ID, WORKER_ID);
@@ -248,7 +279,7 @@ async function main() {
             continue;
         }
 
-        await Promise.all(response.map(({ message }) => fetchWebsite(message.id)));
+        await Promise.all(response.map(({ message }) => fetchWebsite(message.id, scheduleRecheck)));
         await xAckBulk(REGION_ID, response.map(({ id }) => id));
     }
 }
