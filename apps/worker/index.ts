@@ -2,7 +2,6 @@ import "dotenv/config";
 import axios from "axios";
 import tls from "tls";
 import { Resend } from "resend";
-import { xAckBulk, xReadGroup, ensureConsumerGroup, kvSet, kvGet } from "redisstream/client";
 import { prismaClient } from "store/client";
 
 const REGION_ID = process.env.REGION_ID!;
@@ -14,6 +13,11 @@ if (!WORKER_ID) throw new Error("WORKER_ID not provided");
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 const ALERT_COOLDOWN_SEC = 10 * 60;
+
+type KvGet = (key: string) => Promise<string | null>;
+type KvSet = (key: string, value: string, ttlSeconds?: number) => Promise<void>;
+let kvGet: KvGet;
+let kvSet: KvSet;
 
 const sslLastChecked = new Map<string, number>();
 const SSL_CHECK_INTERVAL_MS = 20 * 60 * 60 * 1000;
@@ -230,6 +234,10 @@ async function fetchWebsite(websiteId: string) {
 }
 
 async function main() {
+    const { xAckBulk, xReadGroup, ensureConsumerGroup, kvGet: _kvGet, kvSet: _kvSet } = await import("redisstream/client");
+    kvGet = _kvGet;
+    kvSet = _kvSet;
+
     await ensureConsumerGroup(REGION_ID);
 
     while (true) {

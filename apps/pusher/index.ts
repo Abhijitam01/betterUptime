@@ -1,19 +1,20 @@
 import "dotenv/config";
 import { prismaClient } from "store/client";
-import { xAddBulk, kvSet, kvGet } from "redisstream/client";
 
 const LAST_PUSHED_PREFIX = "pusher:last_pushed:";
 
-async function getLastPushed(websiteId: string): Promise<number> {
-    const val = await kvGet(`${LAST_PUSHED_PREFIX}${websiteId}`);
-    return val ? parseInt(val, 10) : 0;
-}
-
-async function setLastPushed(websiteId: string, ts: number) {
-    await kvSet(`${LAST_PUSHED_PREFIX}${websiteId}`, String(ts));
-}
-
 async function main() {
+    const { xAddBulk, kvSet, kvGet } = await import("redisstream/client");
+
+    async function getLastPushed(websiteId: string): Promise<number> {
+        const val = await kvGet(`${LAST_PUSHED_PREFIX}${websiteId}`);
+        return val ? parseInt(val, 10) : 0;
+    }
+
+    async function setLastPushed(websiteId: string, ts: number) {
+        await kvSet(`${LAST_PUSHED_PREFIX}${websiteId}`, String(ts));
+    }
+
     const websites = await prismaClient.website.findMany({
         select: { url: true, id: true, check_interval_sec: true }
     });
